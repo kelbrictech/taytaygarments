@@ -1,0 +1,29 @@
+name: Taytay Textile Co. CI
+on:
+  push:
+    branches: [taytay-textile-fullstack-v1]
+    paths:
+      - 'taytay-textile-co/**'
+      - '.github/workflows/taytay-textile-ci.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: taytay-textile-co
+    steps:
+      - name: Checkout application source
+        uses: actions/checkout@v4
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck Cloudflare Worker
+        run: npm run typecheck
+      - name: Verify domain input validation
+        run: npm test

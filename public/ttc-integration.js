@@ -1,0 +1,38 @@
+/* Taytay Textile Co. API integration; supports the approved legacy showroom. */
+(()=>{
+'use strict';
+const map={"campus-polo":"TTC-SCH-001","scholar-blazer":"TTC-SCH-002","pe-set":"TTC-SCH-003","office-shirt":"TTC-COR-001","brand-polo":"TTC-COR-002","executive-blazer":"TTC-COR-003","public-service":"TTC-GOV-001","field-uniform":"TTC-GOV-002","clinical-scrub":"TTC-SPC-001","chef-jacket":"TTC-SPC-002","retail-hoodie":"TTC-CUS-001","event-tee":"TTC-CUS-002"};
+async function syncCatalog(){try{const res=await fetch('/api/v1/products');if(!res.ok)return;const {products:rows}=await res.json();if(!Array.isArray(rows)||!rows.length)return;
+const merged=rows.map(row=>{const original=products.find(p=>p.id===row.slug);const variants=Array.isArray(row.variants)?row.variants:[];const primary=variants.find(v=>v.default)||variants[0]||{};
+const colors=variants.filter(v=>v.views?.front?.url).map(v=>v.color);if(primary.views?.front?.url)PRODUCT_PHOTOS[row.slug]=primary.views.front.url;
+return {...(original||{id:row.slug,type:'custom'}),id:row.slug,sku:row.sku,name:row.name,category:row.category,subtitle:row.subtitle,fabric:row.fabric||original?.fabric||'Specification-based',finish:row.finish||original?.finish||'To be confirmed',use:row.applications||original?.use||row.category,variants,colors:colors.length?colors:[primary.color||'navy'],color:primary.color||original?.color||'navy'};
+});
+products.splice(0,products.length,...merged);
+if(typeof route==='function'&&!document.querySelector('#modalHost [role="dialog"]'))route(false);
+}catch{console.info('Catalog API unavailable. Embedded concept items remain visible.');}}
+function updateAngles(){if(typeof modalPid==='undefined'||!modalPid)return;const p=products.find(x=>x.id===modalPid);const visual=document.querySelector('#modalVisual');if(!p||!visual||visual.querySelector('.ttc-angle-set'))return;
+const variant=p.variants?.find(v=>v.color===modalColor);if(!variant)return;const views=variant.views||{};const available=['front','side','back'].filter(angle=>views[angle]?.url);if(!available.length)return;
+const img=visual.querySelector('img.product-photograph');if(!img)return;img.src=views.front?.url||views[available[0]].url;img.alt=views.front?.alt||p.name+' front studio concept';
+if(available.length<2)return;
+const nav=document.createElement('div');nav.className='ttc-angle-set';nav.setAttribute('role','group');nav.setAttribute('aria-label','Available garment views');
+available.forEach((angle,i)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=angle[0].toUpperCase()+angle.slice(1);btn.dataset.ttcAngle=angle;btn.setAttribute('aria-pressed',String(i===0));nav.append(btn)});
+visual.append(nav);
+}
+function attach(){const panel=document.querySelector('.form-panel');if(!panel||panel.querySelector('#submitTTC'))return;
+const block=document.createElement('div');block.className='ttc-submit';
+block.innerHTML='<h3>Submit your project inquiry</h3><p>A reference number confirms database receipt; it does not confirm pricing, capacity, or an order. Design files are not uploaded at this stage.</p><label class="ttc-hp">Leave blank<input id="ttc-site" tabindex="-1" autocomplete="off"></label><button type="button" class="btn btn-dark" id="submitTTC">Send Inquiry Securely ↗</button><p id="ttcStatus" role="status" aria-live="polite"></p>';
+(panel.querySelector('#reviewPanel')||panel).insertAdjacentElement('afterend',block);
+if(!document.getElementById('ttcStyle')){const style=document.createElement('style');style.id='ttcStyle';style.textContent='.ttc-angle-set{position:absolute;bottom:16px;left:16px;display:flex;gap:6px;z-index:4}.ttc-angle-set button{background:#fffefa;border:1px solid #b5b8b0;padding:8px 13px;min-height:38px;border-radius:3px;font-weight:700}.ttc-angle-set button[aria-pressed=true]{background:#153c36;color:#fff}.ttc-submit{margin-top:22px;padding:25px;border:1px solid #d2dfd0;background:#f1f5ef}.ttc-submit h3{font:27px Georgia,serif;margin:0 0 12px}.ttc-hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}#ttcStatus{font-weight:700;margin:12px 0 0}';document.head.appendChild(style)}}
+const value=id=>document.getElementById('q-'+id)?.value?.trim()||'';
+let key;
+async function submit(){if(typeof validateQuote==='function'&&!validateQuote())return;
+const btn=document.querySelector('#submitTTC');const out=document.querySelector('#ttcStatus');if(!btn||!out)return;
+if(!key)key=crypto.randomUUID();const payload={organization:value('org'),sector:value('sector'),contactName:value('name'),email:value('email'),garmentType:value('type'),quantityBand:value('qty'),serviceType:value('service'),targetTimeline:value('timeline'),destination:value('destination'),details:value('note'),consent:document.querySelector('#q-consent')?.checked===true,website:document.querySelector('#ttc-site')?.value||'',idempotencyKey:key,items:(typeof cart!=='undefined'?cart:[]).map(x=>({sku:map[x.id]||x.id,color:x.color,quantity:null}))};
+btn.disabled=true;btn.textContent='Sending securely…';out.textContent='';
+try{const res=await fetch('/api/v1/inquiries',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(!res.ok)throw new Error((data.details||[]).join(' ')||data.error||'Unable to submit');out.style.color='#23614a';out.textContent='Received and stored · '+data.reference+' — save this reference for follow-up.';btn.textContent='Inquiry Received ✓';key=null;}catch(e){out.style.color='#a43f2e';out.textContent='Not submitted: '+(e.message||e)+'. Your draft has not been lost.';btn.disabled=false;btn.textContent='Retry Inquiry ↗'}}
+document.addEventListener('click',e=>{const angle=e.target.closest('[data-ttc-angle]');if(angle){const product=products.find(p=>p.id===modalPid);const variant=product?.variants?.find(v=>v.color===modalColor);const media=variant?.views?.[angle.dataset.ttcAngle];const image=document.querySelector('#modalVisual img.product-photograph');if(media&&image){image.src=media.url;image.alt=media.alt||product.name+' '+angle.dataset.ttcAngle+' view';document.querySelectorAll('[data-ttc-angle]').forEach(b=>b.setAttribute('aria-pressed',String(b===angle)))}return;}if(e.target.closest('#submitTTC'))submit()});
+const app=document.querySelector('#app');if(app){new MutationObserver(()=>{if(location.hash.startsWith('#/quote'))attach()}).observe(app,{childList:true})}
+if(location.hash.startsWith('#/quote'))attach();
+const modal=document.querySelector('#modalHost');if(modal)new MutationObserver(updateAngles).observe(modal,{childList:true});
+syncCatalog();
+})();

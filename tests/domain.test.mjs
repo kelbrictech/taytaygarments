@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
+const ts=createRequire(import.meta.url)('typescript');
+const source=readFileSync(new URL('../src/domain.ts',import.meta.url),'utf8');
+const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
+const domain=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+test('reject missing consent and invalid email',()=>{const req=domain.normalizeInquiry({organization:'University A',contactName:'Buyer',sector:'School',email:'invalid',consent:false});assert.ok(domain.validateInquiry(req).length>=2)});
+test('valid project request',()=>{const req=domain.normalizeInquiry({organization:'University A',sector:'School',contactName:'Buyer',email:'buyer@example.org',consent:true,items:[{sku:'TTC-SCH-002',color:'navy',quantity:500}]});assert.deepEqual(domain.validateInquiry(req),[]);assert.equal(req.items[0].quantity,500)});
+test('bounded request fields and honeypot',()=>{const req=domain.normalizeInquiry({organization:'x'.repeat(300),website:'spam.example'});assert.equal(req.organization.length,130);assert.ok(domain.validateInquiry(req).includes('Request rejected.'))});
+test('stable reference format',()=>assert.match(domain.makeReference('12345678-aaaa-bbbb'),/^TTC-20\d\d-12345678$/));

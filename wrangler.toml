@@ -1,0 +1,13 @@
+name = "taytay-textile-co"
+main = "src/worker.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+[vars]
+SITE_STATUS = "development"
+SITE_NAME = "Taytay Textile Co."
+# Put DATABASE_URL, ADMIN_API_TOKEN, IP_HASH_PEPPER in Cloudflare secrets, never in Git.
