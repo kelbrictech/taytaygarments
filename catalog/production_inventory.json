@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "kind": "TTC virtual showroom production inventory",
+  "environment": "staging",
+  "source": "Neon seeded concept inventory as verified Oct 27 2026",
+  "notes": "Source of truth for render queues, not an assertion that the colors or items are supplier-approved. No unrequested variants added.",
+  "required_views": [
+    "front",
+    "side",
+    "back"
+  ],
+  "complete_definition": "Each view must be from an independently generated source or authentic photography, visually reviewed, correctly mapped, browser verified.",
+  "variants": [
+    {
+      "sku": "TTC-SCH-001",
+      "slug": "campus-polo",
+      "name": "Campus Signature Polo",
+      "color": "white",
+      "hex": "#F1EFE9",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-SCH-002",
+      "slug": "scholar-blazer",
+      "name": "Scholar Tailored Blazer",
+      "color": "navy",
+      "hex": "#253650",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-SCH-003",
+      "slug": "pe-set",
+      "name": "Active Campus Tee",
+      "color": "deepGreen",
+      "hex": "#28564B",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-COR-001",
+      "slug": "office-shirt",
+      "name": "Executive Work Shirt",
+      "color": "sky",
+      "hex": "#9DBBD1",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-COR-002",
+      "slug": "brand-polo",
+      "name": "Corporate Brand Polo",
+      "color": "deepGreen",
+      "hex": "#28564B",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-COR-003",
+      "slug": "executive-blazer",
+      "name": "Modern Executive Blazer",
+      "color": "navy",
+      "hex": "#253650",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-GOV-001",
+      "slug": "public-service",
+      "name": "Public Service Barong Shirt",
+      "color": "cream",
+      "hex": "#E9DDC5",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-GOV-002",
+      "slug": "field-uniform",
+      "name": "Operations Work Jacket",
+      "color": "olive",
+      "hex": "#626B56",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-SPC-001",
+      "slug": "clinical-scrub",
+      "name": "Clinical Scrub Top",
+      "color": "navy",
+      "hex": "#253650",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-SPC-002",
+      "slug": "chef-jacket",
+      "name": "Hospitality Chef Jacket",
+      "color": "white",
+      "hex": "#F1EFE9",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-CUS-001",
+      "slug": "retail-hoodie",
+      "name": "Private-Label Hoodie",
+      "color": "terracotta",
+      "hex": "#AE664F",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    },
+    {
+      "sku": "TTC-CUS-002",
+      "slug": "event-tee",
+      "name": "Campaign & Event Tee",
+      "color": "burgundy",
+      "hex": "#6A3945",
+      "views": {
+        "front": {
+          "state": "concept_existing_cloudinary_not_approved"
+        },
+        "side": {
+          "state": "pending_independent_render"
+        },
+        "back": {
+          "state": "pending_independent_render"
+        }
+      }
+    }
+  ]
+}
