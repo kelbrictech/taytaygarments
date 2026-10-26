@@ -2,9 +2,9 @@
 
 ## Verified repository
 - GitHub owner: `kelbrictech`
-- Repository: `KELBRIC-UI-LAB`
-- Git branch: `taytay-textile-fullstack-v1` (NOT `main`)
-- Root directory: `taytay-textile-co`
+- Repository: `taytaygarments`
+- Git branch: `main`
+- Root directory: `/` (repository root)
 - Worker name: `taytay-textile-co` (must match `wrangler.toml` exactly)
 - Build command: `npm install && npm run typecheck && npm test`
 - Deploy command: `npx wrangler deploy`
@@ -12,9 +12,9 @@
 
 ## Cloudflare setup (user account required)
 1. Open Cloudflare dashboard → **Workers & Pages** → **Create application**.
-2. Select **GitHub**, authorize access to the repo, select `kelbrictech/KELBRIC-UI-LAB`.
-3. Name worker `taytay-textile-co`, target branch `taytay-textile-fullstack-v1`.
-4. Set root directory `taytay-textile-co`.
+2. Select **GitHub**, authorize access to the repo, select `kelbrictech/taytaygarments`.
+3. Name worker `taytay-textile-co`, target branch `main`.
+4. Set root directory `/` (repository root).
 5. Set build/deploy commands above, create the Worker.
 6. Under Worker → Settings → Variables and Secrets, set:
    - `DATABASE_URL`: pooled Neon PostgreSQL connection URL for project `fancy-water-27345430`, database `taytay_textile`; secret, never in Git.
