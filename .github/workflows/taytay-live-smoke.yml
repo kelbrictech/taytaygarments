@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/taytay-live-smoke.yml'
       - 'wrangler.toml'
+      - 'public/index.html'
+      - 'public/typography.css'
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -18,7 +20,7 @@ jobs:
           ORIGIN: https://taytaygarments.arjayb-fb.workers.dev
         run: |
           set -euo pipefail
-          for route in / /api/health /api/v1/products; do
+          for route in / /typography.css /api/health /api/v1/products; do
             echo "::group::GET $route"
             status=$(curl -L --retry 3 --retry-all-errors --connect-timeout 8 --max-time 20 -sS -o response.txt -w '%{http_code}' "$ORIGIN$route")
             echo "HTTP status: $status"
@@ -27,6 +29,12 @@ jobs:
             if [[ "$route" == "/" ]]; then
               test "$status" = "200"
               grep -qi "taytay textile" response.txt
+              grep -q 'href="/typography.css"' response.txt
+            fi
+            if [[ "$route" == "/typography.css" ]]; then
+              test "$status" = "200"
+              grep -q -- "--type-editorial" response.txt
+              grep -q -- "--type-interface" response.txt
             fi
             if [[ "$route" == "/api/health" ]]; then
               test "$status" = "200"
