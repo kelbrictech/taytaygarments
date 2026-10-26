@@ -2,8 +2,6 @@ name: Taytay Textile Co. CI
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/taytay-textile-ci.yml'
   workflow_dispatch:
 jobs:
   validate:
