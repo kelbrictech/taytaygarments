@@ -85,3 +85,6 @@ p { line-height: 1.65; }
 @media (max-width: 680px) {
   .product-card .product-info p { font-size: 14px !important; }
 }
+
+/* Quote empty-state helper has an inline 12px declaration in legacy markup. */
+.quote-aside .aside-items > p { font-size: 14px !important; }
