@@ -1,0 +1,36 @@
+name: Live Taytaygarments smoke check
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/taytay-live-smoke.yml'
+      - 'wrangler.toml'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 3
+    steps:
+      - name: Inspect Cloudflare public website and API
+        env:
+          ORIGIN: https://taytaygarments.arjayb-fb.workers.dev
+        run: |
+          set -euo pipefail
+          for route in / /api/health /api/v1/products; do
+            echo "::group::GET $route"
+            status=$(curl -L --retry 3 --retry-all-errors --connect-timeout 8 --max-time 20 -sS -o response.txt -w '%{http_code}' "$ORIGIN$route")
+            echo "HTTP status: $status"
+            echo "Response bytes: $(wc -c < response.txt)"
+            if [[ "$route" == "/api/health" || "$route" == "/api/v1/products" ]]; then head -c 1000 response.txt; echo; fi
+            if [[ "$route" == "/" ]]; then
+              test "$status" = "200"
+              grep -qi "taytay textile" response.txt
+            fi
+            if [[ "$route" == "/api/health" ]]; then
+              test "$status" = "200"
+              grep -q '"databaseConfigured"' response.txt
+            fi
+            echo "::endgroup::"
+          done
