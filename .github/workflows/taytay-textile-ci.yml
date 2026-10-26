@@ -1,9 +1,8 @@
 name: Taytay Textile Co. CI
 on:
   push:
-    branches: [taytay-textile-fullstack-v1]
+    branches: [main]
     paths:
-      - 'taytay-textile-co/**'
       - '.github/workflows/taytay-textile-ci.yml'
   workflow_dispatch:
 jobs:
@@ -13,7 +12,7 @@ jobs:
       contents: read
     defaults:
       run:
-        working-directory: taytay-textile-co
+        working-directory: .
     steps:
       - name: Checkout application source
         uses: actions/checkout@v4
