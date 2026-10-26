@@ -72,3 +72,16 @@ p { line-height: 1.65; }
   .links.open a, .links.open button { font-size: .9375rem; }
   .modal-info h2 { font-size: 2rem; }
 }
+
+/* Audit corrections — specificity verified against embedded catalog CSS.
+   These rules affect typography only; no component geometry or behavior. */
+.product-card .product-info p { font-size: 14px; }
+.sector-card p { font-size: 14px; }
+.quote-aside p { font-size: 14px; }
+@media (max-width: 560px) {
+  .hero-copy .eyebrow { font-size: 12px; }
+  .sector-card p { font-size: 14px; }
+}
+@media (max-width: 680px) {
+  .product-card .product-info p { font-size: 14px !important; }
+}
