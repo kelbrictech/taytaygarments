@@ -1,0 +1,74 @@
+/* TAYTAY TEXTILE CO. — TYPE HIERARCHY V1
+   Typography only. Loaded after the original design CSS.
+   Native font stacks avoid extra requests, layout flashes and licensing dependencies.
+*/
+:root {
+  --type-editorial: Georgia, 'Times New Roman', serif;
+  --type-interface: 'Segoe UI', Arial, Helvetica, sans-serif;
+  --type-body: 1rem;
+  --type-support: .875rem;
+  --type-label: .75rem;
+  --type-lead: clamp(1.0625rem, 1.35vw, 1.1875rem);
+  --type-hero: clamp(4rem, 5.5vw, 5rem);
+  --type-page: clamp(3.25rem, 5vw, 4.5rem);
+  --type-section: clamp(2.375rem, 3.6vw, 3.625rem);
+}
+body { font-family: var(--type-interface); font-size: var(--type-body); line-height: 1.65; }
+h1, h2, h3, .serif { font-family: var(--type-editorial); font-weight: 400; }
+h1 { font-size: var(--type-hero); line-height: 1.06; letter-spacing: -.045em; }
+h2 { font-size: var(--type-section); line-height: 1.13; letter-spacing: -.037em; }
+h3 { font-size: 1.5rem; line-height: 1.23; letter-spacing: -.025em; }
+p { line-height: 1.65; }
+/* Brand / wayfinding */
+.topline { font-size: var(--type-label); letter-spacing: .09em; line-height: 1.35; }
+.brand-copy strong { font-family: var(--type-interface); font-size: 1.125rem; letter-spacing: .095em; line-height: 1.1; }
+.brand-copy span { font-size: var(--type-label); letter-spacing: .1em; line-height: 1.35; }
+.links a, .links button { font-size: .8125rem; line-height: 1.45; letter-spacing: .005em; }
+.btn, .mini-btn { font-size: .8125rem; line-height: 1.35; letter-spacing: .015em; }
+.eyebrow, .kicker { font-family: var(--type-interface); font-size: var(--type-label); line-height: 1.4; letter-spacing: .13em; }
+.more-link { font-size: .8125rem; letter-spacing: .045em; line-height: 1.35; }
+/* Primary editorial information */
+.hero-copy h1 { font-size: var(--type-hero); line-height: 1.065; letter-spacing: -.047em; }
+.hero-copy p { font-size: var(--type-lead); line-height: 1.7; }
+.page-hero h1 { font-size: var(--type-page); line-height: 1.075; letter-spacing: -.043em; }
+.page-hero .intro, .lead { font-size: var(--type-lead); line-height: 1.7; }
+.section-head h2, .procurement-wrap h2 { font-size: var(--type-section); line-height: 1.13; letter-spacing: -.037em; }
+/* Scannable sector and product cards */
+.sector-card h3 { font-family: var(--type-editorial); font-size: clamp(1.25rem, 1.8vw, 1.625rem); line-height: 1.17; letter-spacing: -.025em; }
+.sector-card p { font-size: var(--type-support); line-height: 1.55; }
+.sector-card .card-index { font-size: var(--type-label); line-height: 1.35; }
+.product-info h3 { font-family: var(--type-interface); font-size: 1.125rem; font-weight: 650; line-height: 1.3; letter-spacing: -.018em; }
+.product-info p { font-size: var(--type-support); line-height: 1.55; }
+.product-info small, .product-card .tag, .product-card .thumb:after { font-size: var(--type-label); line-height: 1.35; letter-spacing: .045em; }
+.editorial-card h3 { font-size: clamp(1.625rem, 2.2vw, 2.125rem); line-height: 1.19; }
+.editorial-card p { font-size: var(--type-support); line-height: 1.6; }
+.quick-item small { font-size: .8125rem; line-height: 1.5; }
+.tick strong, .procurement-list strong { font-size: .9375rem; line-height: 1.4; }
+.tick p, .procurement-list small { font-size: var(--type-support); line-height: 1.6; }
+/* Product details / quotation legibility */
+.modal-info h2 { font-size: clamp(2.125rem, 3vw, 2.75rem); line-height: 1.12; }
+.modal-info p, .modal-info li { font-size: var(--type-body); line-height: 1.65; }
+.quote-aside p, .review-steps p { font-size: var(--type-support); line-height: 1.65; }
+.field label, .quote-grid .field label, .form-panel label { font-size: var(--type-label); line-height: 1.4; letter-spacing: .055em; }
+.form-panel input, .form-panel select, .form-panel textarea { font-size: var(--type-body); line-height: 1.45; }
+.footer p { font-size: .9375rem; line-height: 1.65; }
+/* Responsive type reduction: preserve hierarchy, never force side-scroll. */
+@media (max-width: 850px) {
+  .hero-copy h1 { font-size: clamp(3.25rem, 7.8vw, 4rem); }
+  .page-hero h1 { font-size: clamp(2.75rem, 6vw, 3.5rem); }
+  .section-head h2, .procurement-wrap h2 { font-size: clamp(2.25rem, 4.8vw, 3rem); }
+}
+@media (max-width: 560px) {
+  .brand-copy strong { font-size: 1rem; letter-spacing: .055em; }
+  .brand-copy span { font-size: .6875rem; }
+  .hero-copy h1 { font-size: clamp(2.625rem, 12vw, 3.5rem); line-height: 1.08; }
+  .hero-copy p { font-size: 1rem; line-height: 1.67; }
+  .page-hero h1 { font-size: clamp(2.5rem, 10vw, 3rem); }
+  .section-head h2, .procurement-wrap h2 { font-size: clamp(2rem, 9vw, 2.5rem); }
+  .sector-card h3 { font-size: 1.125rem; line-height: 1.2; }
+  .sector-card p { font-size: .8125rem; line-height: 1.5; }
+  .product-info h3 { font-size: 1.0625rem; line-height: 1.26; }
+  .product-info p { font-size: .875rem; }
+  .links.open a, .links.open button { font-size: .9375rem; }
+  .modal-info h2 { font-size: 2rem; }
+}
