@@ -1,7 +1,7 @@
 # TAYTAY TEXTILE CO. — VIRTUAL SHOWROOM VISUAL ASSET PRODUCTION BRIEF
 Version: 1.0 | Issued: 2026-10-26 | Status: OPEN / NOT COMPLETE
-Project: Taytay Textile Co. (provisional name) | GitHub: kelbrictech/KELBRIC-UI-LAB
-Project branch: taytay-textile-fullstack-v1 | Project folder: taytay-textile-co/
+Project: Taytay Textile Co. (provisional name) | GitHub: kelbrictech/taytaygarments
+Project branch: main | Project folder: repository root /
 Authoritative companion: docs/ASSET_PIPELINE.md
 
 ## 0. Purpose / drift prevention
