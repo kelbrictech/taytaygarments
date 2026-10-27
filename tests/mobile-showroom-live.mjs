@@ -42,12 +42,12 @@ for(const [width,height] of [[390,844],[320,700],[1440,900]]){
  results.push({width,height,title:name,visual,angles:nav,info,close,modal,bodyWidth:docWidth,screenshot,colorAngle:'charcoal/back',jsErrors:0});
  await page.close();
 }
-for(const route of ['about','portfolio','contact','quote','manufacturing']){
+for(const route of ['showroom','about','portfolio','contact','quote','manufacturing']){
  const page=await browser.newPage();
  await page.goto(url.replace('#/showroom','#/'+route),{waitUntil:'domcontentloaded',timeout:35000});
  await page.waitForTimeout(800);
  const visible=await page.locator('body').innerText();
- if(/Fictional identity|PROTOTYPE ONLY|PITCH CONCEPTS ONLY|This prototype|This demonstration|pitch concept|not inventory/i.test(visible))throw Error('prototype copy in '+route);
+ if(/Fictional identity|PROTOTYPE ONLY|PITCH CONCEPTS ONLY|CONCEPT SHOWROOM|ILLUSTRATIVE IMAGE|This prototype|This demonstration|pitch concept|not inventory/i.test(visible))throw Error('prototype copy in '+route);
  await page.close();
 }
 console.log('MOBILE_SHOWROOM_QA_SUCCESS');
