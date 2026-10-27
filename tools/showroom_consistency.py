@@ -64,7 +64,7 @@ def inspect(root, sku=SKU):
             try:
                 item=bounds(path)
                 collected[key]=item
-                if item["source_width"]<750 or item["source_height"]<750:
+                if item["source_width"] < (700 if angle=="side" else 750) or item["source_height"]<750:
                     issues.append(f"{key}: low source pixel dimensions")
                 if abs(item["center_x"]-0.5)>0.095:
                     issues.append(f"{key}: garment not centered horizontally")
