@@ -19,12 +19,13 @@ try{
     await page.locator('#modalVisual [data-ttc-angle="'+angle+'"]').click();
     const img=page.locator('#modalVisual img.product-photograph');
     const expected='/assets/showroom/TTC-SCH-003/'+color+'/'+angle+'.webp';
-    await page.waitForFunction(expected=>document.querySelector('#modalVisual img.product-photograph')?.getAttribute('src')===expected,expected,{timeout:12000});
+    await page.waitForFunction(expected=>{const src=document.querySelector('#modalVisual img.product-photograph')?.getAttribute('src');return !!src && new URL(src,location.origin).pathname===expected;},expected,{timeout:12000});
     await img.evaluate(el=>new Promise((resolve,reject)=>{
      if(el.complete)return el.naturalWidth>0?resolve(null):reject(Error('not loaded'));
      el.addEventListener('load',()=>resolve(null),{once:true});
      el.addEventListener('error',()=>reject(Error('load failed')),{once:true});
     }));
+    if(['sky','terracotta'].includes(color) && !(await img.getAttribute('src')).includes('?v=ttc003-20261028b'))throw Error('Stale concept asset '+color+'/'+angle);
     checks++;console.log('PASS '+width+' '+color+' '+angle);
    }
   }
