@@ -1,0 +1,46 @@
+{
+  "sku": "TTC-SCH-002",
+  "product": "Scholar Tailored Blazer",
+  "catalog_source": "Existing HTML showroom swatches",
+  "color_order": [
+    "navy",
+    "charcoal",
+    "burgundy",
+    "deepGreen"
+  ],
+  "colors": {
+    "navy": "#263d59",
+    "charcoal": "#4a4b51",
+    "burgundy": "#743e4c",
+    "deepGreen": "#28584f"
+  },
+  "views": [
+    "front",
+    "side",
+    "back"
+  ],
+  "staged_preview": {
+    "count": 12,
+    "provenance": "cropped_composite_generated_plate",
+    "status": "review_only_NOT_APPROVED",
+    "source_asset": "a_clean_product_catalog_grid_lookbook_image_on_a.png",
+    "browser": {
+      "widths": [
+        390,
+        1440
+      ],
+      "states_loaded": 12,
+      "page_errors": 0,
+      "overflow": false
+    },
+    "release_blockers": [
+      "separate independent render per SKU/color/angle",
+      "full resolution and fabrication detail inspection",
+      "verify garment similarity against approved original front",
+      "Cloudinary registration of individually approved assets",
+      "Neon variant/angle mapping"
+    ]
+  },
+  "production_database_mutated": false,
+  "production_site_mutated": false
+}
