@@ -1,0 +1,29 @@
+name: Showroom image consistency evidence
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/showroom_consistency.py'
+      - 'tests/test_showroom_consistency.py'
+      - 'public/assets/showroom/TTC-SCH-003/**'
+      - '.github/workflows/showroom-consistency.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pillow numpy scipy
+      - run: python -m unittest discover -s tests -p test_showroom_consistency.py -v
+      - name: Measure all 12 committed source images
+        run: python tools/showroom_consistency.py --output showroom-consistency-results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tee-source-image-consistency-evidence
+          path: showroom-consistency-results.json
