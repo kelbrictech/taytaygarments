@@ -9,7 +9,7 @@
     "sky",
     "terracotta"
   ],
-  "asset_type": "Digital concept image assets; green/navy are independently generated files, sky/terracotta panels extracted from a generated source plate",
+  "asset_type": "Digital concept image assets; each angle in all colorways now has individual full-length product imagery; sky and terracotta are independent generated renders with non-stretched standardized canvas",
   "complete_colors": [
     "deepGreen",
     "navy",
@@ -63,46 +63,47 @@
     },
     {
       "path": "public/assets/showroom/TTC-SCH-003/sky/back.webp",
-      "git_sha": "8958402d4c6c6595c77c67577654d9a958caac3f",
-      "review": "concept_staged",
+      "git_sha": "6e2433a8673fc1ad252641a882eb1de9abda30ba",
+      "review": "visual_candidate_verified_full_length",
       "customer_facing": "digital concept in virtual showroom",
-      "provenance": "crop_from_generated_source_plate_a_clean_product_catalog_e_commerce_style_layout.png"
+      "provenance": "independent_generated_product_view_pixel_masked_to_neutral_900x1100_canvas"
     },
     {
       "path": "public/assets/showroom/TTC-SCH-003/sky/front.webp",
-      "git_sha": "167724b15d5f06d3cfdb6de9327fdf152c87adeb",
-      "review": "concept_staged",
+      "git_sha": "013b842d8cfaadc9af6d88a14a3ebc5917afefe8",
+      "review": "visual_candidate_verified_full_length",
       "customer_facing": "digital concept in virtual showroom",
-      "provenance": "crop_from_generated_source_plate_a_clean_product_catalog_e_commerce_style_layout.png"
+      "provenance": "independent_generated_product_view_pixel_masked_to_neutral_900x1100_canvas"
     },
     {
       "path": "public/assets/showroom/TTC-SCH-003/sky/side.webp",
-      "git_sha": "48f62890b6f0e7edbe83b96a4a1068a2a167a384",
-      "review": "concept_staged",
+      "git_sha": "6b29c77d5ab41c7ad32ef3714eb673fb4891b714",
+      "review": "visual_candidate_verified_full_length",
       "customer_facing": "digital concept in virtual showroom",
-      "provenance": "crop_from_generated_source_plate_a_clean_product_catalog_e_commerce_style_layout.png"
+      "provenance": "independent_generated_product_view_pixel_masked_to_neutral_900x1100_canvas"
     },
     {
       "path": "public/assets/showroom/TTC-SCH-003/terracotta/back.webp",
-      "git_sha": "e0f2960156d11d7ea5039fe4be6f0b253ab87a80",
-      "review": "concept_staged",
+      "git_sha": "cd614a895d3732d6dbe3235f6c59ee07de599203",
+      "review": "visual_candidate_verified_full_length",
       "customer_facing": "digital concept in virtual showroom",
-      "provenance": "crop_from_generated_source_plate_a_clean_product_catalog_e_commerce_style_layout.png"
+      "provenance": "independent_generated_product_view_pixel_masked_to_neutral_900x1100_canvas"
     },
     {
       "path": "public/assets/showroom/TTC-SCH-003/terracotta/front.webp",
-      "git_sha": "6195a67edea4af33cd3ce96209de4d88989218d8",
-      "review": "concept_staged",
+      "git_sha": "9b30cf7dd0c808b7cbf249f784a26adbd1d8cdde",
+      "review": "visual_candidate_verified_full_length",
       "customer_facing": "digital concept in virtual showroom",
-      "provenance": "crop_from_generated_source_plate_a_clean_product_catalog_e_commerce_style_layout.png"
+      "provenance": "independent_generated_product_view_pixel_masked_to_neutral_900x1100_canvas"
     },
     {
       "path": "public/assets/showroom/TTC-SCH-003/terracotta/side.webp",
-      "git_sha": "9f2c4bcece1e0604cbb122c5f679d2580f2cca6c",
-      "review": "concept_staged",
+      "git_sha": "756f8ab53214190ca2fd2ef8aee3412f35f21cfe",
+      "review": "visual_candidate_verified_full_length",
       "customer_facing": "digital concept in virtual showroom",
-      "provenance": "crop_from_generated_source_plate_a_clean_product_catalog_e_commerce_style_layout.png"
+      "provenance": "independent_generated_product_view_pixel_masked_to_neutral_900x1100_canvas"
     }
   ],
-  "restrictions": "These are virtual concept renders; do not claim real manufacturer stock or exact material/colors. No other SKU or swatch added."
+  "restrictions": "These are virtual concept renders; do not claim real manufacturer stock or exact material/colors. No other SKU or swatch added.",
+  "visual_revision": "2026-10-28 standalone six-image replacement for sky and terracotta; 900x1100 consistent output"
 }
