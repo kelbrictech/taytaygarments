@@ -1,0 +1,104 @@
+{
+  "sku": "TTC-SCH-001",
+  "name": "Campus Signature Polo",
+  "type": "digital concept",
+  "sourceOfTruth": "public/index.html colors:['navy','white','deepGreen','burgundy']",
+  "note": "Some burgundy and deepGreen views are crops from generated sheets; not independent photographic views. Concept-only imagery.",
+  "colors": [
+    "navy",
+    "white",
+    "deepGreen",
+    "burgundy"
+  ],
+  "angles": [
+    "front",
+    "side",
+    "back"
+  ],
+  "files": [
+    {
+      "color": "navy",
+      "angle": "front",
+      "path": "navy/front.webp",
+      "gitBlobSha": "543688ecacf7cd7237bbda22729f4918a33a1e0f",
+      "provenance": "independent_generated_concept"
+    },
+    {
+      "color": "navy",
+      "angle": "side",
+      "path": "navy/side.webp",
+      "gitBlobSha": "5bbb37e15a9860980edd4f68536de66d626bf583",
+      "provenance": "independent_generated_concept"
+    },
+    {
+      "color": "navy",
+      "angle": "back",
+      "path": "navy/back.webp",
+      "gitBlobSha": "701cbf77a78c99eff61833e74cea3e62287b84b9",
+      "provenance": "independent_generated_concept"
+    },
+    {
+      "color": "white",
+      "angle": "front",
+      "path": "white/front.webp",
+      "gitBlobSha": "f893b2248e3e4967dbda9f28c4f3ab7eec5d1fe3",
+      "provenance": "independent_generated_concept"
+    },
+    {
+      "color": "white",
+      "angle": "side",
+      "path": "white/side.webp",
+      "gitBlobSha": "e162552d1c43ebc517befde8fbdcb68adaff2fb0",
+      "provenance": "independent_generated_concept"
+    },
+    {
+      "color": "white",
+      "angle": "back",
+      "path": "white/back.webp",
+      "gitBlobSha": "a07acda82e55f768fd5abcda82a2e0af2e9696c5",
+      "provenance": "independent_generated_concept"
+    },
+    {
+      "color": "deepGreen",
+      "angle": "front",
+      "path": "deepGreen/front.webp",
+      "gitBlobSha": "ab5187d01c4ef9567e8e95e9ae219955edb0310a",
+      "provenance": "cropped_generated_sheet"
+    },
+    {
+      "color": "deepGreen",
+      "angle": "side",
+      "path": "deepGreen/side.webp",
+      "gitBlobSha": "6a149bb71c49aa29dcf7edeed51d7799f887b91e",
+      "provenance": "cropped_generated_sheet"
+    },
+    {
+      "color": "deepGreen",
+      "angle": "back",
+      "path": "deepGreen/back.webp",
+      "gitBlobSha": "32d93592f87ba4602d1c2b7d77e25db7bf14aedc",
+      "provenance": "cropped_generated_sheet"
+    },
+    {
+      "color": "burgundy",
+      "angle": "front",
+      "path": "burgundy/front.webp",
+      "gitBlobSha": "082bb1aa667684112acc81d4fe1817a5e9a0f5d4",
+      "provenance": "independent_generated_concept"
+    },
+    {
+      "color": "burgundy",
+      "angle": "side",
+      "path": "burgundy/side.webp",
+      "gitBlobSha": "19963e31dd92b529d1ff803ad5e36b4e745adedc",
+      "provenance": "cropped_generated_sheet"
+    },
+    {
+      "color": "burgundy",
+      "angle": "back",
+      "path": "burgundy/back.webp",
+      "gitBlobSha": "9b2fd4f5c2d26cc5bbe56ec84d3b00e627618500",
+      "provenance": "cropped_generated_sheet"
+    }
+  ]
+}

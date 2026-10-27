@@ -15,18 +15,31 @@ function applyBlazerViews(){
  document.querySelectorAll('[data-product="scholar-blazer"] .product-photograph').forEach(img=>{img.src=PRODUCT_PHOTOS['scholar-blazer'];img.alt='Scholar Tailored Blazer — navy front concept';});
 }
 applyBlazerViews();
+/* Exact static asset manifest for Campus Signature Polo, sourced from the committed
+   TTC-SCH-001 image files. Color and construction are digital concepts only. */
+const POLO_CONCEPT_VIEWS={"navy":{"front":{"url":"/assets/showroom/TTC-SCH-001/navy/front.webp","alt":"Campus Signature Polo — navy front digital concept","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-001/navy/side.webp","alt":"Campus Signature Polo — navy side digital concept","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-001/navy/back.webp","alt":"Campus Signature Polo — navy back digital concept","status":"concept"}},"white":{"front":{"url":"/assets/showroom/TTC-SCH-001/white/front.webp","alt":"Campus Signature Polo — white front digital concept","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-001/white/side.webp","alt":"Campus Signature Polo — white side digital concept","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-001/white/back.webp","alt":"Campus Signature Polo — white back digital concept","status":"concept"}},"deepGreen":{"front":{"url":"/assets/showroom/TTC-SCH-001/deepGreen/front.webp","alt":"Campus Signature Polo — deepGreen front digital concept","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-001/deepGreen/side.webp","alt":"Campus Signature Polo — deepGreen side digital concept","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-001/deepGreen/back.webp","alt":"Campus Signature Polo — deepGreen back digital concept","status":"concept"}},"burgundy":{"front":{"url":"/assets/showroom/TTC-SCH-001/burgundy/front.webp","alt":"Campus Signature Polo — burgundy front digital concept","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-001/burgundy/side.webp","alt":"Campus Signature Polo — burgundy side digital concept","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-001/burgundy/back.webp","alt":"Campus Signature Polo — burgundy back digital concept","status":"concept"}}};
+function applyPoloViews(){
+ const p=products.find(v=>v.id==='campus-polo');if(!p)return;
+ const palette={navy:'#263d59',white:'#eeeae1',deepGreen:'#28584f',burgundy:'#743e4c'};
+ p.colors=['navy','white','deepGreen','burgundy'];p.color='white';
+ p.variants=p.colors.map(c=>({color:c,label:c,hex:palette[c],default:c==='white',views:POLO_CONCEPT_VIEWS[c]}));
+ PRODUCT_PHOTOS['campus-polo']=POLO_CONCEPT_VIEWS.white.front.url;
+ document.querySelectorAll('[data-product="campus-polo"] .product-photograph').forEach(img=>{img.src=PRODUCT_PHOTOS['campus-polo'];img.alt='Campus Signature Polo — white front digital concept';});
+}
+applyPoloViews();
 async function syncCatalog(){try{const res=await fetch('/api/v1/products');if(!res.ok)return;const {products:rows}=await res.json();if(!Array.isArray(rows)||!rows.length)return;
 const merged=rows.map(row=>{const original=products.find(p=>p.id===row.slug);const variants=Array.isArray(row.variants)?row.variants:[];const primary=variants.find(v=>v.default)||variants[0]||{};
 const colors=variants.filter(v=>v.views?.front?.url).map(v=>v.color);if(primary.views?.front?.url)PRODUCT_PHOTOS[row.slug]=primary.views.front.url;
 return {...(original||{id:row.slug,type:'custom'}),id:row.slug,sku:row.sku,name:row.name,category:row.category,subtitle:row.subtitle,fabric:row.fabric||original?.fabric||'Specification-based',finish:row.finish||original?.finish||'To be confirmed',use:row.applications||original?.use||row.category,variants,colors:colors.length?colors:[primary.color||'navy'],color:primary.color||original?.color||'navy'};
 });
 products.splice(0,products.length,...merged);
+applyBlazerViews();applyPoloViews();
 if(typeof route==='function'&&!document.querySelector('#modalHost [role="dialog"]'))route(false);
 }catch{console.info('Catalog API unavailable. Embedded concept items remain visible.');}}
 function updateAngles(){if(typeof modalPid==='undefined'||!modalPid)return;const p=products.find(x=>x.id===modalPid);const visual=document.querySelector('#modalVisual');if(!p||!visual||visual.querySelector('.ttc-angle-set'))return;
 const variant=p.variants?.find(v=>v.color===modalColor);if(!variant)return;const views=variant.views||{};const available=['front','side','back'].filter(angle=>views[angle]?.url);if(!available.length)return;
 const img=visual.querySelector('img.product-photograph');if(!img)return;img.src=views.front?.url||views[available[0]].url;img.alt=views.front?.alt||p.name+' front studio concept';
-if(p.id==='scholar-blazer'){const desc=document.querySelector('#modalDescription');if(desc)desc.textContent=p.subtitle+'. Selected imagery shows the chosen digital concept color and view. Physical fabric color, materials and availability require manufacturer confirmation.';}
+if(p.id==='scholar-blazer'||p.id==='campus-polo'){const desc=document.querySelector('#modalDescription');if(desc)desc.textContent=p.subtitle+'. Selected imagery shows the chosen digital concept color and view. Physical fabric color, materials and availability require manufacturer confirmation.';}
 if(available.length<2)return;
 const nav=document.createElement('div');nav.className='ttc-angle-set';nav.setAttribute('role','group');nav.setAttribute('aria-label','Available garment views');
 available.forEach((angle,i)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=angle[0].toUpperCase()+angle.slice(1);btn.dataset.ttcAngle=angle;btn.setAttribute('aria-pressed',String(i===0));nav.append(btn)});
