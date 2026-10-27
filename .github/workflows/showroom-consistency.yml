@@ -27,3 +27,5 @@ jobs:
         with:
           name: tee-source-image-consistency-evidence
           path: showroom-consistency-results.json
+      - name: Enforce consistent garment proportions before approving assets
+        run: python tools/showroom_consistency.py --enforce
