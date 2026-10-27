@@ -13,7 +13,8 @@ for(const [width,height] of [[390,844],[320,700],[1440,900]]){
  if(await page.locator('.topline').count())throw Error(width+' outdated promotional strip remains');
  const pageText=await page.locator('#app').innerText();
  if(/Design\. Develop\. Manufacture\.|Choose the direction|A curated starting point/i.test(pageText))throw Error(width+' generic slogans remain on showroom');
- if(!pageText.includes('Browse 12 uniform and apparel styles.'))throw Error(width+' latest copy not deployed');
+ if(!pageText.includes('Explore uniforms and apparel.'))throw Error(width+' latest showroom heading not deployed');
+ if(await page.locator('.showroom-list .notice').count())throw Error(width+' duplicated introductory notice remains');
  if(width<=390){
    await page.screenshot({path:'artifacts/mobile-showroom/showroom-first-screen-'+width+'.png'});
  }
