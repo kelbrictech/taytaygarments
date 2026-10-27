@@ -27,19 +27,32 @@ function applyPoloViews(){
  document.querySelectorAll('[data-product="campus-polo"] .product-photograph').forEach(img=>{img.src=PRODUCT_PHOTOS['campus-polo'];img.alt='Campus Signature Polo — white front digital concept';});
 }
 applyPoloViews();
+/* Active Campus Tee: production-recorded 4-color / 3-angle digital concept views.
+   Two colors use independent source images; sky and terracotta were extracted from a generated source sheet.
+   No manufacturing claims are implied by these renderings. */
+const TEE_CONCEPT_VIEWS={"deepGreen":{"front":{"url":"/assets/showroom/TTC-SCH-003/deepGreen/front.webp","alt":"Active Campus Tee — deepGreen front digital concept view","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-003/deepGreen/side.webp","alt":"Active Campus Tee — deepGreen side digital concept view","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-003/deepGreen/back.webp","alt":"Active Campus Tee — deepGreen back digital concept view","status":"concept"}},"navy":{"front":{"url":"/assets/showroom/TTC-SCH-003/navy/front.webp","alt":"Active Campus Tee — navy front digital concept view","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-003/navy/side.webp","alt":"Active Campus Tee — navy side digital concept view","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-003/navy/back.webp","alt":"Active Campus Tee — navy back digital concept view","status":"concept"}},"sky":{"front":{"url":"/assets/showroom/TTC-SCH-003/sky/front.webp","alt":"Active Campus Tee — sky front digital concept view","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-003/sky/side.webp","alt":"Active Campus Tee — sky side digital concept view","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-003/sky/back.webp","alt":"Active Campus Tee — sky back digital concept view","status":"concept"}},"terracotta":{"front":{"url":"/assets/showroom/TTC-SCH-003/terracotta/front.webp","alt":"Active Campus Tee — terracotta front digital concept view","status":"concept"},"side":{"url":"/assets/showroom/TTC-SCH-003/terracotta/side.webp","alt":"Active Campus Tee — terracotta side digital concept view","status":"concept"},"back":{"url":"/assets/showroom/TTC-SCH-003/terracotta/back.webp","alt":"Active Campus Tee — terracotta back digital concept view","status":"concept"}}};
+function applyTeeViews(){
+ const p=products.find(v=>v.id==='pe-set');if(!p)return;
+ const palette={"deepGreen":"#28584f","navy":"#263d59","sky":"#8eabbf","terracotta":"#a5664e"};
+ p.colors=['deepGreen','navy','sky','terracotta'];p.color='deepGreen';
+ p.variants=p.colors.map(c=>({color:c,label:c,hex:palette[c],default:c==='deepGreen',views:TEE_CONCEPT_VIEWS[c]}));
+ PRODUCT_PHOTOS['pe-set']=TEE_CONCEPT_VIEWS.deepGreen.front.url;
+ document.querySelectorAll('[data-product="pe-set"] .product-photograph').forEach(img=>{img.src=PRODUCT_PHOTOS['pe-set'];img.alt='Active Campus Tee — deep green front digital concept';});
+}
+applyTeeViews();
 async function syncCatalog(){try{const res=await fetch('/api/v1/products');if(!res.ok)return;const {products:rows}=await res.json();if(!Array.isArray(rows)||!rows.length)return;
 const merged=rows.map(row=>{const original=products.find(p=>p.id===row.slug);const variants=Array.isArray(row.variants)?row.variants:[];const primary=variants.find(v=>v.default)||variants[0]||{};
 const colors=variants.filter(v=>v.views?.front?.url).map(v=>v.color);if(primary.views?.front?.url)PRODUCT_PHOTOS[row.slug]=primary.views.front.url;
 return {...(original||{id:row.slug,type:'custom'}),id:row.slug,sku:row.sku,name:row.name,category:row.category,subtitle:row.subtitle,fabric:row.fabric||original?.fabric||'Specification-based',finish:row.finish||original?.finish||'To be confirmed',use:row.applications||original?.use||row.category,variants,colors:colors.length?colors:[primary.color||'navy'],color:primary.color||original?.color||'navy'};
 });
 products.splice(0,products.length,...merged);
-applyBlazerViews();applyPoloViews();
+applyBlazerViews();applyPoloViews();applyTeeViews();
 if(typeof route==='function'&&!document.querySelector('#modalHost [role="dialog"]'))route(false);
 }catch{console.info('Catalog API unavailable. Embedded concept items remain visible.');}}
 function updateAngles(){if(typeof modalPid==='undefined'||!modalPid)return;const p=products.find(x=>x.id===modalPid);const visual=document.querySelector('#modalVisual');if(!p||!visual||visual.querySelector('.ttc-angle-set'))return;
 const variant=p.variants?.find(v=>v.color===modalColor);if(!variant)return;const views=variant.views||{};const available=['front','side','back'].filter(angle=>views[angle]?.url);if(!available.length)return;
 const img=visual.querySelector('img.product-photograph');if(!img)return;img.src=views.front?.url||views[available[0]].url;img.alt=views.front?.alt||p.name+' front studio concept';
-if(p.id==='scholar-blazer'||p.id==='campus-polo'){const desc=document.querySelector('#modalDescription');if(desc)desc.textContent=p.subtitle+'. Selected imagery shows the chosen digital concept color and view. Physical fabric color, materials and availability require manufacturer confirmation.';}
+if(p.id==='scholar-blazer'||p.id==='campus-polo'||p.id==='pe-set'){const desc=document.querySelector('#modalDescription');if(desc)desc.textContent=p.subtitle+'. Selected imagery shows the chosen digital concept color and view. Physical fabric color, materials and availability require manufacturer confirmation.';}
 if(available.length<2)return;
 const nav=document.createElement('div');nav.className='ttc-angle-set';nav.setAttribute('role','group');nav.setAttribute('aria-label','Available garment views');
 available.forEach((angle,i)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=angle[0].toUpperCase()+angle.slice(1);btn.dataset.ttcAngle=angle;btn.setAttribute('aria-pressed',String(i===0));nav.append(btn)});
