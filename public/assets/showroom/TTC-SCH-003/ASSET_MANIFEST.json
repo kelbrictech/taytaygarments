@@ -1,0 +1,67 @@
+{
+  "sku": "TTC-SCH-003",
+  "name": "Active Campus Tee",
+  "source_reference": "Existing pe-set default green tee and hardcoded SKU/colors in public/index.html",
+  "reference_status": "source verified from current GitHub main plus existing concept image",
+  "existing_colors": [
+    "deepGreen",
+    "navy",
+    "sky",
+    "terracotta"
+  ],
+  "asset_type": "independently generated concept photographs, not actual manufactured inventory",
+  "complete_colors": [
+    "deepGreen",
+    "navy"
+  ],
+  "missing_colors": [
+    "sky",
+    "terracotta"
+  ],
+  "views": [
+    "front",
+    "side",
+    "back"
+  ],
+  "images_committed": 6,
+  "images_remaining": 6,
+  "images": [
+    {
+      "path": "public/assets/showroom/TTC-SCH-003/deepGreen/front.webp",
+      "git_sha": "a195c2af5431868263b8189c9b8f292f27d71e0d",
+      "review": "concept_staged",
+      "customer_facing": "not activated"
+    },
+    {
+      "path": "public/assets/showroom/TTC-SCH-003/deepGreen/side.webp",
+      "git_sha": "22dcf5b1ab1fdf0fbd80c22fbeb52386ead4dd15",
+      "review": "concept_staged",
+      "customer_facing": "not activated"
+    },
+    {
+      "path": "public/assets/showroom/TTC-SCH-003/deepGreen/back.webp",
+      "git_sha": "b6212cf7de0b7e4d9f77a8e0c6c20dd8fee43a74",
+      "review": "concept_staged",
+      "customer_facing": "not activated"
+    },
+    {
+      "path": "public/assets/showroom/TTC-SCH-003/navy/front.webp",
+      "git_sha": "e77e97ac655aab6bc88c0b9701dca55c36313b64",
+      "review": "concept_staged",
+      "customer_facing": "not activated"
+    },
+    {
+      "path": "public/assets/showroom/TTC-SCH-003/navy/side.webp",
+      "git_sha": "474ba6969ae527c3fcbb9b2c122f1eb2d808c3ee",
+      "review": "concept_staged",
+      "customer_facing": "not activated"
+    },
+    {
+      "path": "public/assets/showroom/TTC-SCH-003/navy/back.webp",
+      "git_sha": "642f89538f47b70596376418de6f03dc7dd2d043",
+      "review": "concept_staged",
+      "customer_facing": "not activated"
+    }
+  ],
+  "restrictions": "Do not introduce unrelated SKU colors or mark full collection ready; preserve existing layout, card images and quotation behavior."
+}
