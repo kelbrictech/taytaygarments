@@ -10,6 +10,14 @@ for(const [width,height] of [[390,844],[320,700],[1440,900]]){
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url,{waitUntil:'domcontentloaded',timeout:35000});
  await page.locator('[data-product="scholar-blazer"]').first().waitFor({timeout:35000});
+ if(await page.locator('.topline').count())throw Error(width+' outdated promotional strip remains');
+ const pageText=await page.locator('#app').innerText();
+ if(/Design\\. Develop\\. Manufacture\\.|Choose the direction|A curated starting point/i.test(pageText))throw Error(width+' generic slogans remain on showroom');
+ if(!pageText.includes('Browse 12 uniform and apparel styles.'))throw Error(width+' latest copy not deployed');
+ if(width<=390){
+   await page.screenshot({path:'artifacts/mobile-showroom/showroom-first-screen-'+width+'.png'});
+ }
+
  await page.locator('[data-product="scholar-blazer"]').first().click();
  await page.locator('#modalVisual .ttc-angle-set button[data-ttc-angle="front"]').waitFor({timeout:15000});
  const box=async selector=>{const el=page.locator(selector);const b=await el.boundingBox();if(!b)throw Error(width+' missing box '+selector);return b;};
@@ -51,5 +59,5 @@ for(const route of ['showroom','about','portfolio','contact','quote','manufactur
  await page.close();
 }
 console.log('MOBILE_SHOWROOM_QA_SUCCESS');
-console.log(JSON.stringify({results,publicRoutesChecked:['about','portfolio','contact','quote','manufacturing'],allPassed:true},null,2));
+console.log(JSON.stringify({results,publicRoutesChecked:['showroom','about','portfolio','contact','quote','manufacturing'],allPassed:true},null,2));
 }finally{await browser.close()}
