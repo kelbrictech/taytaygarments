@@ -7,6 +7,7 @@ on:
       - '.github/workflows/showroom-blazer-live.yml'
       - 'tests/showroom-blazer-live.mjs'
       - 'tests/showroom-polo-live.mjs'
+      - 'tests/showroom-tee-live.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,3 +24,4 @@ jobs:
       - run: npx playwright install chromium
       - run: node tests/showroom-blazer-live.mjs
       - run: node tests/showroom-polo-live.mjs
+      - run: node tests/showroom-tee-live.mjs
