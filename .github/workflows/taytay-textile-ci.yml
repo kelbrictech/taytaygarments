@@ -24,3 +24,7 @@ jobs:
         run: npm run typecheck
       - name: Verify domain input validation
         run: npm test
+      - name: Validate browser JavaScript syntax
+        run: |
+          node --check public/operations.js
+          node --check public/ttc-integration.js

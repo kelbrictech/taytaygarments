@@ -24,3 +24,5 @@ jobs:
           node -e "const h=require('./health.json');if(!h.databaseConfigured)throw Error('Neon connection missing');console.log('databaseConfigured=true; inquirySubmissionEnabled='+h.inquirySubmissionEnabled)"
           curl -fsS --retry 3 "$ORIGIN/api/v1/products" -o catalog.json
           node -e "const c=require('./catalog.json');if(!Array.isArray(c.products)||c.products.length<12)throw Error('Live catalog incomplete');console.log('Live catalog count:',c.products.length)"
+          curl -fsS --retry 3 "$ORIGIN/api/v2/jobs" -o jobs.json
+          node -e "const j=require('./jobs.json');if(!Array.isArray(j.jobs)||j.jobs.length<3)throw Error('Demo careers backend unavailable');console.log('Sample positions:',j.jobs.length)"

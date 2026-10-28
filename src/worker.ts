@@ -1,7 +1,7 @@
 import {neon} from '@neondatabase/serverless';
 import {portalApi} from './portal';
 import {normalizeInquiry,validateInquiry,makeReference} from './domain';
-interface Env{DATABASE_URL?:string;ADMIN_API_TOKEN?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;TURNSTILE_SITE_KEY?:string;INQUIRIES_ENABLED?:string;SITE_STATUS?:string;LEGACY_ADMIN_ENABLED?:string;ASSETS:Fetcher}
+interface Env{DATABASE_URL?:string;ADMIN_API_TOKEN?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;TURNSTILE_SITE_KEY?:string;INQUIRIES_ENABLED?:string;SITE_STATUS?:string;ASSETS:Fetcher}
 const json=(body:unknown,status=200,extra:Record<string,string>={})=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',...extra}});
 function authorize(r:Request,e:Env){const token=e.ADMIN_API_TOKEN||'',supplied=(r.headers.get('authorization')||'').replace(/^Bearer\s+/i,'');if(token.length<32||supplied.length!==token.length)return false;let n=0;for(let i=0;i<token.length;i++)n|=token.charCodeAt(i)^supplied.charCodeAt(i);return n===0}
 async function fingerprint(r:Request,pepper:string){const ip=r.headers.get('cf-connecting-ip');if(!ip||!pepper)return null;const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pepper+'|'+ip));return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('')}
@@ -15,7 +15,7 @@ return json({ok:true,service:'taytay-textile-co',databaseConfigured:dbReady,
 inquiriesConfigured:dbReady&&guardReady,inquirySubmissionEnabled:e.INQUIRIES_ENABLED==='true'&&dbReady&&guardReady&&(!prod||turnstileReady),
 turnstileSiteKey:turnstileReady?e.TURNSTILE_SITE_KEY:null,status:e.SITE_STATUS||'development'});}
 if(path.startsWith('/api/v2/'))return portalApi(r,e);
-if(path.startsWith('/api/v1/admin/')&&e.LEGACY_ADMIN_ENABLED!=='true')return json({error:'Use the new role-based operations portal.'},410);
+if(path.startsWith('/api/v1/admin/'))return json({error:'Legacy admin API retired. Sign in at /portal.html.'},410);
 if(!e.DATABASE_URL)return json({error:'Database not configured.'},503);
 const db=neon(e.DATABASE_URL);
 if(path==='/api/v1/products'&&r.method==='GET'){
