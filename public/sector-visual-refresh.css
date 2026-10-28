@@ -46,3 +46,7 @@
 .sector-card>img{filter:none;object-position:50% 34%;}
 .sector-card:before{background:linear-gradient(180deg,rgba(10,28,29,.08) 0%,rgba(10,28,29,.04) 45%,rgba(8,22,24,.48) 74%,rgba(8,22,24,.93) 100%);}
 @media(max-width:640px){.sector-card>img{object-position:50% 28%;}}
+
+/* Real mannequin photography deserves a shorter, clearer editorial hero. */
+@media(min-width:1101px){.hero-copy{min-height:540px;padding-top:58px;padding-bottom:38px}.hero-copy h1{font-size:clamp(60px,5.1vw,78px);line-height:1.04}.hero-copy p{font-size:15px;line-height:1.55}.hero-proof{display:none}.hero-art-shade{background:linear-gradient(90deg,#091a1cf5 0%,#091a1cdb 20%,#091a1c86 39%,#091a1c14 63%,transparent 100%)}.hero-cover{object-position:center}}
+@media(max-width:1100px){.hero-proof{display:none}}
