@@ -13,7 +13,7 @@ for(const [key,file] of Object.entries(mannequinKeys)){
   assert.match(image,/<svg\b/);
   assert.match(image,/<title>.+<\/title>/);
   assert.match(image,/Mannequin|dress forms|garment|uniform/i);
-  assert.doesNotMatch(image,/<image\b|<foreignObject\b|https?:\/\//i);
+  assert.doesNotMatch(image,/<(?:image|foreignObject|script)\b|\son\w+\s*=|(?:xlink:)?href\s*=\s*["']https?:\/\//i);
  });
 }
 for(const key of ['factory','machine']){
