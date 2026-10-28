@@ -15,3 +15,14 @@ details{margin-top:20px}summary{cursor:pointer;font-weight:750;color:#163e34;pad
 
 .timeline-action{display:block;margin-top:7px;border:1px solid #cedacf;border-radius:4px;background:#f4f8f1;color:#23523d;min-height:34px;padding:5px 10px;font-size:12px;font-weight:700}
 .eventline{list-style:none;padding-left:20px;border-left:2px solid #bfd3c2}.eventline li{position:relative;padding:4px 0 20px 19px}.eventline li:before{content:'';position:absolute;left:-27px;top:9px;background:#a96e50;width:11px;height:11px;border:3px solid white;border-radius:50%;box-shadow:0 0 0 1px #d2b8a5}.eventline strong{display:block;text-transform:capitalize}.eventline span{display:block;font-size:12px;color:#69766f}.eventline p{font-size:13px;color:#6d7b70;margin:6px 0 0}
+
+.trust-management-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:20px}
+.trust-admin-item{border:1px solid #dce4d9;border-radius:5px;background:#fdfdf9;padding:18px;min-width:0}
+.trust-admin-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.trust-admin-head h4{font:25px Georgia,serif;letter-spacing:-.03em;margin:0 0 8px}
+.trust-admin-head p{margin:0}.trust-admin-head .tag{flex-shrink:0}
+.trust-admin-item summary{font-size:13px;margin-top:8px}
+.trust-admin-item form label{font-size:12px;margin:12px 0}
+.trust-admin-item .trust-review-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px;padding-top:14px;border-top:1px solid #dce4d9}
+.trust-review-actions button{border:1px solid #bdcdbe;border-radius:4px;background:#fff;color:#1e4738;min-height:40px;padding:8px;font-size:12px;font-weight:750}
+@media(max-width:900px){.trust-management-grid{grid-template-columns:1fr}}
