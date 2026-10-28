@@ -54,3 +54,7 @@ Follow [Full-stack runbook](docs/FULL_STACK_RUNBOOK.md) and [Cloudflare deployme
 - Neon: exact catalog SQL executed, 12 product records returned; Campus Polo 4 variants and 12 media records after applying migration 003.
 - Cloudflare Workers Builds completed successfully for commit `a3091c0`, independently confirmed using the Cloudflare GitHub check run. This verifies the build, not database readiness. Last executed live readiness check (2026-10-28) reported `databaseConfigured:false` and product HTTP 503; recheck after configuring the Worker secret.
 - Real public inquiry submission: NOT TESTED. Admin access policy, legal/privacy notice, Turnstile production keys, and staff notification remain launch blockers.
+
+## ISO 9001:2026 readiness
+
+The [implementation and gap register](docs/ISO_9001_2026_IMPLEMENTATION.md) distinguishes implemented software controls from organization-wide requirements. A new staff/admin Quality (QMS) dashboard supports versioned documents, risks, CAPA, immutable inspections, audits and management-review records. The public [Quality](https://taytaygarments.arjayb-fb.workers.dev/#/quality) page makes clear that no ISO 9001 certification is verified. A passing final inspection is required before new order dispatch/delivery events. 
