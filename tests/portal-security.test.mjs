@@ -10,6 +10,9 @@ const q=async(sql,params=[])=>{
  dbCalls.push({sql,params});
  if(sql.includes('FROM ttc_sessions'))return user?[{token_hash:'h',csrf_token:'csrf-token',user_id:'u-001',role:user,email:'test@example.invalid',full_name:'Test Person',approval_status:'approved',demo:true}]:[];
  if(sql.includes('FROM ttc_jobs'))return [{code:'DEMO-JOB-001',title:'Sample Technician',demo:true}];
+ if(sql.includes('FROM ttc_trust_badges'))return [{slug:'smeta',title:'Sedex / SMETA Audit',category:'Ethical production',status:'research',certificate_ref:'',verification_url:'',issuer:'Sedex',proof_kind:'audit'}];
+ if(sql.includes('UPDATE ttc_trust_badges'))return [{slug:'smeta',status:params[0]==='documented'?'documented':sql.includes("status='submitted'")?'submitted':params[0]}];
+
  if(sql.includes('FROM ttc_content_pages'))return [{slug:'taytay-hub',title:'Taytay',body:'Factual industry article'}];
  if(sql.includes('FROM ttc_orders'))return [];
  if(sql.includes('FROM ttc_stock_items'))return [{sku:'TEST-STOCK',on_hand:30,reorder_point:10}];
@@ -37,3 +40,27 @@ test('admin can approve a staff record',async()=>{user='admin';const r=await por
 test('webmaster is denied stock and approvals',async()=>{user='webmaster';assert.equal((await portal(req('/api/v2/stock','GET',undefined,cookie),env)).status,403);assert.equal((await portal(req('/api/v2/users','GET',undefined,cookie),env)).status,403)});
 test('webmaster edits allowlisted CMS content with CSRF',async()=>{user='webmaster';const r=await portal(req('/api/v2/cms/taytay-hub','PUT',{title:'Taytay industry',body:'A long and meaningful demonstration content update.',published:true},{...cookie,'x-csrf-token':'csrf-token'}),env);assert.equal(r.status,200)});
 test('CSRF cross-origin POST is blocked',async()=>{user='staff';const r=await portal(req('/api/v2/orders','POST',{description:'A new demo order'},{...cookie,origin:'https://evil.test','x-csrf-token':'csrf-token'}),env);assert.equal(r.status,403)});
+
+test('badge registry is public, and empty credentials are research-only',async()=>{
+ user=null;const r=await portal(req('/api/v2/trust'),env);assert.equal(r.status,200);
+ const body=await r.json();assert.equal(body.badges[0].status,'research');assert.equal(body.badges[0].certificate_ref,'');assert.equal(body.verifiedExternally,false);
+});
+test('anonymous client cannot access badge management',async()=>{
+ user=null;assert.equal((await portal(req('/api/v2/trust/manage'),env)).status,401);
+});
+test('webmaster can see research badges but cannot self-approve',async()=>{
+ user='webmaster';assert.equal((await portal(req('/api/v2/trust/manage','GET',undefined,cookie),env)).status,200);
+ const r=await portal(req('/api/v2/trust/smeta/review','PATCH',{status:'documented'},{...cookie,'x-csrf-token':'csrf-token'}),env);assert.equal(r.status,403);
+});
+test('unapproved customer cannot submit badge evidence',async()=>{
+ user='customer';const r=await portal(req('/api/v2/trust/smeta/proof','PATCH',{reference:'TEST-0001',verificationUrl:'https://example.com/proof'},{...cookie,'x-csrf-token':'csrf-token'}),env);assert.equal(r.status,403);
+});
+test('webmaster evidence submission rejects insecure URLs',async()=>{
+ user='webmaster';const r=await portal(req('/api/v2/trust/smeta/proof','PATCH',{reference:'TEST-0001',verificationUrl:'http://example.com/proof'},{...cookie,'x-csrf-token':'csrf-token'}),env);assert.equal(r.status,422);
+});
+test('webmaster may submit review evidence under a secure URL',async()=>{
+ user='webmaster';const r=await portal(req('/api/v2/trust/smeta/proof','PATCH',{reference:'TEST-0001',verificationUrl:'https://www.sedex.com/'},{...cookie,'x-csrf-token':'csrf-token'}),env);assert.equal(r.status,200);
+});
+test('administrator may record a submitted credential review',async()=>{
+ user='admin';const r=await portal(req('/api/v2/trust/smeta/review','PATCH',{status:'documented'},{...cookie,'x-csrf-token':'csrf-token'}),env);assert.equal(r.status,200);assert.equal((await r.json()).badge.status,'documented');
+});

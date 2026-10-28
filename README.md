@@ -12,6 +12,7 @@ Cloudflare Workers + static Assets frontend, TypeScript API, Neon PostgreSQL (ex
 - `POST /api/v1/inquiries` — consent-based inquiry storage; disabled until launch controls are enabled.
 - `/track.html` and `GET /api/v1/inquiries/{reference}/status?email=` — customer tracking; no personal details returned.
 - `/portal.html` — customer, staff, administrator and webmaster sign-in with a role-specific dashboard.
+- `/#/trust` — public evidence-labelled verification directory for 22 candidate standards, with an original Philippine heritage badge on the home page. Admin/webmaster evidence workflow as documented in [Trust Badge Framework](docs/TRUST_BADGE_FRAMEWORK.md).
 - `/admin.html` — redirects to the new portal; the legacy token-only `/api/v1/admin/*` routes return HTTP 410.
 - `/#/careers` — careers preview with *sample positions only*.
 - `/#/taytay-hub` — sourced Taytay garment industry feature, recognizing the officially used “Garments Capital of the Philippines” designation.
