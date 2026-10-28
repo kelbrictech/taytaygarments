@@ -1,0 +1,29 @@
+
+/* Quality management workspace; same pine, parchment and copper identity as operations. */
+.qms-workspace{display:grid;gap:22px}.qms-notice{padding:24px;background:#f5f1e8;border:1px solid #d9cbb6;border-left:4px solid #b68750}
+.qms-notice strong{display:block;color:#163c33;font:26px Georgia,serif}.qms-notice p{max-width:950px;font-size:13px;line-height:1.7;color:#526155}
+.qms-notice a{font-size:12px;font-weight:750;text-decoration:underline;color:#1c5444}
+.qms-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.qms-stat{display:grid;gap:5px;background:#faf8f3;border:1px solid #dce4d8;padding:18px}
+.qms-stat small{font-size:10px;font-weight:800;letter-spacing:.08em;color:#748478}
+.qms-stat strong{font:40px Georgia,serif;color:#173f36}
+.qms-stat span{font-size:12px;color:#60756a}
+.qms-panel{min-width:0}.qms-panel .datatable td{vertical-align:top;font-size:12px}
+.qms-panel .datatable td:nth-child(2){min-width:140px}
+.qms-panel .datatable strong{display:block}
+.qms-demo{display:block;font-size:10px;letter-spacing:.07em;color:#9c7c5b;margin:5px 0}
+.qms-detail summary,.qms-create summary{cursor:pointer;color:#1f594b;font-weight:750;font-size:12px;padding:8px 0}
+.qms-detail{min-width:215px}.qms-detail p,.qms-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.7}
+.qms-detail .qms-body{background:#f7f5ef;padding:13px;border:1px solid #e1e1d7;max-height:290px;overflow:auto}
+.qms-detail form,.qms-create form{display:grid;gap:12px;padding:14px 0;max-width:690px}
+.qms-detail form label,.qms-create form label{display:grid;gap:6px;font-size:12px;font-weight:750;color:#2a5544}
+.qms-detail form textarea,.qms-create form textarea{resize:vertical;min-height:85px}
+.qms-detail form input,.qms-detail form select,.qms-detail form textarea,.qms-create form input,.qms-create form select,.qms-create form textarea{width:100%;font-size:13px;padding:12px;border:1px solid #bacbc0;border-radius:4px;background:#fff}
+.qms-create{margin-top:18px;border:1px dashed #bfcebe;padding:14px 20px;background:#f8faf6}
+.qms-create summary{font-size:15px}
+.qms-actions{display:flex;flex-wrap:wrap;gap:8px;margin:13px 0}
+.qms-actions button{font-size:12px;min-height:40px;border:1px solid #bec9bb;background:#fff;padding:8px 11px;color:#245344}
+.qms-actions button:disabled{cursor:not-allowed;opacity:.5}
+.qms-history-entry{padding:10px;border-top:1px solid #dae5dc;white-space:normal}
+.qms-history-entry strong{display:inline!important}
+@media(max-width:900px){.qms-stats{grid-template-columns:1fr}.qms-panel .datatable td{min-width:135px}.qms-detail{min-width:180px}.qms-workspace{gap:15px}}
