@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#153c36">
+<meta name="description" content="Private customer area to follow your garment project and orders.">
+<title>My Orders | Taytay Textile Co.</title>
+<link rel="stylesheet" href="/customer.css">
+<script src="/customer.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+ <div class="container header-inner">
+  <a class="brand" href="/#/"><span class="brand-mark" aria-hidden="true">T</span><span><strong>TAYTAY TEXTILE CO.</strong><small>UNIFORMS &amp; APPAREL</small></span></a>
+  <nav aria-label="Customer navigation"><a href="/#/showroom">Virtual Showroom</a><a href="/#/quote">Request a Quote</a><a href="/track.html">Track an Inquiry</a><a class="current" href="/customer.html" aria-current="page">My Orders</a></nav>
+ </div>
+</header>
+<main id="main" class="container">
+ <section class="intro">
+  <span class="eyebrow">CUSTOMER ACCOUNT / GARMENT PROJECTS</span>
+  <h1>Your garments,<br><em>from order to delivery.</em></h1>
+  <p>Check the progress of your orders and see recorded milestones in one private workspace.</p>
+ </section>
+ <div id="feedback" role="status" aria-live="polite" hidden></div>
+ <section id="signedOut" class="signin-layout" hidden>
+  <div class="panel login-panel">
+   <span class="eyebrow">CUSTOMER SIGN IN</span>
+   <h2>Welcome back.</h2>
+   <p>Use the email and password provided with your customer account.</p>
+   <form id="customerLogin" autocomplete="on">
+    <label for="customerEmail">Email address</label><input id="customerEmail" name="email" type="email" autocomplete="username" placeholder="you@organization.com" required maxlength="150">
+    <label for="customerPassword">Password</label><input id="customerPassword" name="password" type="password" autocomplete="current-password" required minlength="8">
+    <button id="loginSubmit" class="primary" type="submit">Sign in to My Orders <span aria-hidden="true">↗</span></button>
+   </form>
+   <p class="subtle">Accounts are issued when your organization has been onboarded. <a href="/#/contact">Contact us about access</a>.</p>
+  </div>
+  <aside class="panel assist">
+   <span class="eyebrow">NEED AN UPDATE?</span>
+   <h2>Find your project.</h2>
+   <p>Have an inquiry reference but no customer account yet? You can check the status of your inquiry without signing in.</p>
+   <a class="outline-link" href="/track.html">Track an inquiry <span aria-hidden="true">↗</span></a>
+   <div class="assist-divider"></div>
+   <span class="eyebrow">START A NEW PROJECT</span>
+   <p>Explore uniform styles, colors and specifications in the virtual showroom.</p>
+   <a class="outline-link" href="/#/showroom">Browse the showroom <span aria-hidden="true">↗</span></a>
+  </aside>
+ </section>
+ <section id="signedIn" class="workspace" hidden>
+  <div class="workspace-header">
+   <div><span class="eyebrow">YOUR CUSTOMER WORKSPACE</span><h2 id="customerName"></h2><p id="customerAccount" class="subtle"></p></div>
+   <button class="secondary" id="signOut" type="button">Sign out</button>
+  </div>
+  <div class="metrics" id="customerMetrics" aria-label="Order summary"></div>
+  <div class="workspace-title"><div><span class="eyebrow">YOUR PROJECTS</span><h3>Order progress</h3></div><button class="text-action" id="reloadOrders" type="button">Refresh updates <span aria-hidden="true">↻</span></button></div>
+  <div id="customerOrders" class="orders" aria-live="polite"></div>
+  <section class="panel account-settings">
+   <details><summary>Account security · Change password</summary>
+    <form id="customerPasswordForm" class="security-fields">
+     <label>Current password<input type="password" name="current" autocomplete="current-password" required></label>
+     <label>New password (15+ characters)<input type="password" name="next" autocomplete="new-password" minlength="15" maxlength="128" required></label>
+     <button type="submit" class="secondary">Update password and sign out</button>
+    </form>
+   </details>
+  </section>
+ </section>
+</main>
+<footer class="site-footer"><div class="container footer-inner"><span>© 2026 Taytay Textile Co. · Taytay, Rizal</span><span>Secure customer workspace · Demo records are labeled</span></div></footer>
+</body>
+</html>
