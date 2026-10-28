@@ -55,11 +55,11 @@ function render(data,user){
  const info='<div class="qms-notice"><strong>ISO 9001:2026 — implementation preparation</strong><p>Current status: <b>no independent certification verified</b>. Drafts and fictional demo records do not establish ISO conformity. Only an authorized owner can approve documented processes; traceable final inspection must precede order release.</p><p>Quality policy, QMS scope, physical processes, customer requirements, employee competence, production controls, supplier evaluation, internal audits and management reviews must be implemented and evidenced in the real organization.</p><a href="/#/quality">Buyer-facing quality information ↗</a></div>';
  return '<div class="qms-workspace">'+info+stats+
   card('Controlled information','Versioned policies, procedures and work instructions. A separate administrator approves submitted documents.',
-  documents.length?table(['CODE','DOCUMENT','REV','STATUS','OWNER','CONTROL'],docRows):'<p class="empty">No controlled documents.</p>')+docForm)+
+  (documents.length?table(['CODE','DOCUMENT','REV','STATUS','OWNER','CONTROL'],docRows):'<p class="empty">No controlled documents.</p>')+docForm)+
   card('Risks, opportunities and corrective actions','Track risk and opportunity separately, record containment, root cause and independent effectiveness checks.',
-  issues.length?table(['REFERENCE','TYPE','TITLE','STATUS','RISK','ACTION'],issueRows):'<p class="empty">No issue records.</p>')+issueForm)+
+  (issues.length?table(['REFERENCE','TYPE','TITLE','STATUS','RISK','ACTION'],issueRows):'<p class="empty">No issue records.</p>')+issueForm)+
   card('Recorded quality evidence','Immutable operational records. A passing final inspection tied to an order is required before dispatch.',
-  last.length?table(['REFERENCE','TYPE','RESULT','DESCRIPTION','LINK','DATE','DETAIL'],recRows):'<p class="empty">No quality records.</p>')+recForm)+'</div>';
+  (last.length?table(['REFERENCE','TYPE','RESULT','DESCRIPTION','LINK','DATE','DETAIL'],recRows):'<p class="empty">No quality records.</p>')+recForm)+'</div>';
 }
 async function submit(form,data,call){
  const type=form.dataset.qmsType;
