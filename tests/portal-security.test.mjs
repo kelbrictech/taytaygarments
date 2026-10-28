@@ -66,3 +66,21 @@ test('webmaster may submit review evidence under a secure URL',async()=>{
 test('administrator may record a submitted credential review',async()=>{
  user='admin';const r=await portal(req('/api/v2/trust/smeta/review','PATCH',{status:'documented'},{...cookie,'x-csrf-token':'csrf-token'}),env);assert.equal(r.status,200);assert.equal((await r.json()).badge.status,'documented');
 });
+
+test('QMS overview stays behind the approved session',async()=>{
+ user=null;assert.equal((await portal(req('/api/v2/qms/overview'),env)).status,401);
+});
+test('QMS mutations require CSRF and matching origin',async()=>{
+ user='staff';const endpoint='/api/v2/qms/records';
+ const payload={kind:'final_inspection',title:'Check sample',details:'Documented dimensions and sewing construction',result:'pass'};
+ assert.equal((await portal(req(endpoint,'POST',payload,cookie),env)).status,403);
+ assert.equal((await portal(req(endpoint,'POST',payload,{...cookie,origin:'https://other.test','x-csrf-token':'csrf-token'}),env)).status,403);
+});
+test('Orders cannot dispatch without latest passed inspection and release note',async()=>{
+ user='staff';const endpoint='/api/v2/orders/TTC-2026-DEMO01/status';
+ assert.equal((await portal(req(endpoint,'PATCH',{status:'dispatch',note:'short'}, {...cookie,'x-csrf-token':'csrf-token'}),env)).status,422);
+ dbCalls.length=0;
+ const r=await portal(req(endpoint,'PATCH',{status:'dispatch',note:'Authorized dispatch after final QC inspection'}, {...cookie,'x-csrf-token':'csrf-token'}),env);
+ assert.equal(r.status,409);
+ assert.ok(dbCalls.some(x=>x.sql?.includes("newest.kind='final_inspection'")&&x.sql?.includes("i.result='pass'")),'Release must check latest passing inspection atomically');
+});

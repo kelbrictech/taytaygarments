@@ -29,3 +29,4 @@ jobs:
           node --check public/operations.js
           node --check public/ttc-integration.js
           node --check public/trust-center.js
+          node --check public/qms-workspace.js
