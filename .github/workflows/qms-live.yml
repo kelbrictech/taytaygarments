@@ -1,0 +1,35 @@
+name: Live ISO 9001 QMS readiness and access gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/qms.ts'
+      - 'src/portal.ts'
+      - 'public/index.html'
+      - 'public/portal.html'
+      - 'public/operations.js'
+      - 'public/qms-workspace.js'
+      - 'public/qms-workspace.css'
+      - 'tests/qms-live.mjs'
+      - '.github/workflows/qms-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-audit --no-fund playwright
+      - run: npx playwright install chromium
+      - name: Verify actual public ISO readiness page and deny anonymous QMS
+        run: node tests/qms-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-page-responsive-screenshots
+          path: artifacts/qms/*.png
