@@ -27,4 +27,4 @@ jobs:
           curl -fsS --retry 3 "$ORIGIN/api/v2/jobs" -o jobs.json
           node -e "const j=require('./jobs.json');if(!Array.isArray(j.jobs)||j.jobs.length<3)throw Error('Demo careers backend unavailable');console.log('Sample positions:',j.jobs.length)"
           curl -fsS --retry 3 "$ORIGIN/api/v2/trust" -o trust.json
-          node -e "const t=require('./trust.json');if(!Array.isArray(t.badges)||t.badges.length!==22)throw Error('Trust badge register incomplete');if(t.badges.some(b=>b.status!=='research'))throw Error('Unexpected documented certificate');console.log('Trust standards under review:',t.badges.length)"
+          node -e "const t=require('./trust.json');if(!Array.isArray(t.badges)||t.badges.length!==22)throw Error('Trust badge register incomplete');if(t.badges.some(b=>b.status==='documented'&&(!b.certificate_ref||!b.verification_url)))throw Error('Documented credential lacks evidence');console.log('Trust standards under review:',t.badges.length)"

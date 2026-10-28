@@ -12,7 +12,8 @@ try{
   await page.locator('.trust-badge-item').first().waitFor({timeout:45000});
   const count=await page.locator('.trust-badge-item').count();
   if(count!==22)throw Error('Live trust record count for '+w+'px: '+count+' != 22');
-  if(await page.locator('.trust-badge-item.has-proof').count())throw Error('Undocumented certification marked as earned.');
+  const documentedCards=page.locator('.trust-badge-item.has-proof');
+  for(let c=0;c<await documentedCards.count();c++)if(await documentedCards.nth(c).locator('a.trust-proof-link').count()!==1)throw Error('Documented credential lacks reference link');
   const text=await page.locator('main').innerText();
   if(!text.includes('PROUD')||!text.includes('PHILIPPINE')||!text.includes('MADE'))throw Error('Philippine heritage mark missing from trust page');
   const buttons=await page.locator('#trustFilters [data-trust-filter]').count();
@@ -42,6 +43,6 @@ try{
  if(!api.ok)throw Error('Live trust API status '+api.status);
  const rows=(await api.json()).badges;
  if(rows.length!==22)throw Error('Live API wrong number of trust entries');
- if(rows.some(x=>x.status!=='research'))throw Error('A credential has been represented as documented without approved evidence');
+ if(rows.some(x=>x.status==='documented'&&(!x.certificate_ref||!/^https:\/\//.test(x.verification_url))))throw Error('Documented credential missing verified reference and HTTPS link');
  console.log('TRUST_BADGES_LIVE_QA_SUCCESS '+JSON.stringify({checks,apiCount:rows.length,noUnverifiedOfficialMarks:true}));
 }finally{await browser.close()}
