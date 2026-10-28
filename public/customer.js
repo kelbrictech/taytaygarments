@@ -17,7 +17,7 @@ async function api(path,method='GET',payload){
 function node(tag,klass,text){const el=document.createElement(tag);if(klass)el.className=klass;if(text!==undefined)el.textContent=String(text);return el}
 const human=status=>String(status||'').replaceAll('_',' ');
 function showSignedOut(){account=null;orders=[];$('#signedIn').hidden=true;$('#signedOut').hidden=false}
-function showSignedIn(){if(account?.role!=='customer'){location.replace('/portal.html');return false}$('#signedIn').hidden=false;$('#signedOut').hidden=true;$('#customerName').textContent=account.name;$('#customerAccount').textContent=account.email;return true}
+function showSignedIn(){if(account?.role!=='customer'){location.replace('/portal');return false}$('#signedIn').hidden=false;$('#signedOut').hidden=true;$('#customerName').textContent=account.name;$('#customerAccount').textContent=account.email;return true}
 async function loadOrders(){
  const data=await api('/api/v2/orders');orders=Array.isArray(data.orders)?data.orders:[];
  const active=orders.filter(o=>!['delivered','cancelled'].includes(o.status)).length;

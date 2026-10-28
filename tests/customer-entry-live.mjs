@@ -6,7 +6,7 @@ fs.mkdirSync('artifacts/customer-access',{recursive:true});
 let ready=false;
 for(let n=0;n<40;n++){
  try{
-  const [home,login]=await Promise.all([fetch(origin+'/',{cache:'no-store'}),fetch(origin+'/customer.html',{cache:'no-store'})]);
+  const [home,login]=await Promise.all([fetch(origin+'/',{cache:'no-store'}),fetch(origin+'/customer',{cache:'no-store'})]);
   if(home.ok&&login.ok&&(await home.text()).includes('showroom-customer-entry')&&(await login.text()).includes('id="customerLogin"')){ready=true;break}
  }catch{}
  await new Promise(r=>setTimeout(r,4000));
@@ -22,8 +22,8 @@ try{
   await entry.waitFor({state:'visible',timeout:20000});
   await page.waitForFunction(()=>document.documentElement.dataset.ttcCatalogSynced==='true',{timeout:35000});
   if(!(await entry.innerText()).includes('Follow your garment order'))throw Error('Customer entry missing at '+width);
-  const link=entry.locator('a[href="/customer.html"]');
-  await Promise.all([page.waitForURL(url=>url.pathname==='/customer.html',{waitUntil:'domcontentloaded',timeout:35000}),link.click()]);
+  const link=entry.locator('a[href="/customer"]');
+  await Promise.all([page.waitForURL(url=>url.pathname==='/customer',{waitUntil:'domcontentloaded',timeout:35000}),link.click()]);
   await page.locator('#customerLogin').waitFor({state:'visible',timeout:20000});
   if(!(await page.locator('#signedIn').isHidden()))throw Error('Customer private dashboard displayed before authentication');
   if(await page.locator('#staffForm').count())throw Error('Staff sign-up should not appear inside customer sign-in');
@@ -39,7 +39,7 @@ try{
  await page.route('**/api/v2/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({user:{id:'demo',name:'Demo Customer',email:'customer.demo@example.invalid',role:'customer',demo:true,csrf:'test'}})}));
  await page.route('**/api/v2/orders',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({orders:demoOrders})}));
  await page.route('**/api/v2/orders/*/events',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({order:demoOrders[0],events:[{status:'received',note:'Sample order registered',created_at:'2026-10-25T10:00:00Z'},{status:'production',note:'Sample production milestone',created_at:'2026-10-26T10:00:00Z'}]})}));
- await page.goto(origin+'/customer.html',{waitUntil:'domcontentloaded',timeout:40000});
+ await page.goto(origin+'/customer',{waitUntil:'domcontentloaded',timeout:40000});
  await page.locator('#customerOrders .order').first().waitFor({timeout:25000});
  if(!(await page.locator('#signedOut').isHidden()))throw Error('Sign-in form visible after successful customer session');
  if(!(await page.locator('.order').innerText()).includes('SAMPLE ORDER'))throw Error('Demo marker not visible');
@@ -51,8 +51,8 @@ try{
  await page.close();
  const staff=await browser.newPage();
  await staff.route('**/api/v2/auth/me',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({user:{id:'staff',name:'Staff Demo',email:'staff.demo@example.invalid',role:'staff',demo:true,csrf:'test'}})}));
- await staff.goto(origin+'/customer.html',{waitUntil:'domcontentloaded',timeout:40000});
- await staff.waitForURL(/\/portal\.html$/, {timeout:20000});
+ await staff.goto(origin+'/customer',{waitUntil:'domcontentloaded',timeout:40000});
+ await staff.waitForURL(/\/portal$/, {timeout:20000});
  console.log('STAFF_ROLE_REDIRECT_PASS');
  await staff.close();
  const guest=await fetch(origin+'/api/v2/orders',{cache:'no-store'});
