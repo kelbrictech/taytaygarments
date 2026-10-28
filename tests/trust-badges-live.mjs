@@ -10,6 +10,7 @@ try{
   const failures=[];page.on('pageerror',e=>failures.push(e.message));
   await page.goto(origin+'/#/trust',{waitUntil:'domcontentloaded',timeout:40000});
   await page.locator('.trust-badge-item').first().waitFor({timeout:45000});
+  await page.locator('#trustFilters button[data-trust-filter]').first().waitFor({state:'attached',timeout:45000});
   const count=await page.locator('.trust-badge-item').count();
   if(count!==22)throw Error('Live trust record count for '+w+'px: '+count+' != 22');
   const documentedCards=page.locator('.trust-badge-item.has-proof');
@@ -29,7 +30,7 @@ try{
   await page.screenshot({path:'artifacts/trust/trust-'+w+'.png',fullPage:false});
   checks.push({route:'trust',width:w,badges:original,filters:buttons,filtered,errors:failures.length});
   await page.goto(origin+'/#/',{waitUntil:'domcontentloaded',timeout:40000});
-  await page.locator('.ph-made-stamp').waitFor({timeout:20000});
+  await page.locator('.ph-made-stamp').waitFor({state:'visible',timeout:30000});
   if(!(await page.locator('.ph-made-copy').innerText()).includes('PROUD PHILIPPINE MADE'))throw Error('Homepage Philippine Made title missing');
   const ribbon=await page.locator('.trust-ribbon-piece').count();
   if(ribbon!==3)throw Error('Homepage trust ribbon count mismatch: '+ribbon);

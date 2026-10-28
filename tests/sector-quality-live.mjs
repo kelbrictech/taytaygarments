@@ -16,8 +16,12 @@ try {
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:40000});
-  await page.locator('.sector-card img').first().waitFor({state:'attached',timeout:20000});
-  await page.locator('.sector-card img').first().scrollIntoViewIfNeeded();
+  // Wait for the SPA's final route render; avoid Playwright scroll instability during replacement.
+  await page.waitForFunction(() => {
+   const images=[...document.querySelectorAll('.sector-card img')];
+   return images.length>=4 && images.every(img=>img.getAttribute('src')?.includes('/headless-'));
+  },null,{timeout:40000});
+  await page.evaluate(()=>document.querySelector('.sector-card')?.scrollIntoView({block:'center',behavior:'instant'}));
   const cards=page.locator('.sector-card');if(await cards.count()<4)throw Error('Missing sector cards');
   await page.evaluate(async()=>{await Promise.all([...document.querySelectorAll('.sector-card img')].slice(0,4).map(async img=>{img.loading='eager';await img.decode()}))});
   const images=await cards.locator('img').evaluateAll(imgs=>imgs.slice(0,4).map(img=>({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,src:img.currentSrc,complete:img.complete})));
