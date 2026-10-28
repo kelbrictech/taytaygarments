@@ -20,9 +20,10 @@ try{
   await page.goto(origin+'/#/showroom',{waitUntil:'domcontentloaded',timeout:40000});
   const entry=page.locator('.showroom-customer-entry');
   await entry.waitFor({state:'visible',timeout:20000});
+  await page.waitForFunction(()=>document.documentElement.dataset.ttcCatalogSynced==='true',{timeout:35000});
   if(!(await entry.innerText()).includes('Follow your garment order'))throw Error('Customer entry missing at '+width);
-  await entry.locator('a[href="/customer.html"]').click();
-  await page.waitForURL(/\/customer\.html$/, {timeout:30000});
+  const link=entry.locator('a[href="/customer.html"]');
+  await Promise.all([page.waitForURL(url=>url.pathname==='/customer.html',{waitUntil:'domcontentloaded',timeout:35000}),link.click()]);
   await page.locator('#customerLogin').waitFor({state:'visible',timeout:20000});
   if(!(await page.locator('#signedIn').isHidden()))throw Error('Customer private dashboard displayed before authentication');
   if(await page.locator('#staffForm').count())throw Error('Staff sign-up should not appear inside customer sign-in');
