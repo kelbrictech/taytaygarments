@@ -18,6 +18,8 @@ globalThis.__ttcTestNeon=()=>async (strings,...values)=>{
 };
 let source=readFileSync(new URL('src/worker.ts',root),'utf8');
 source=source.replace("import {neon} from '@neondatabase/serverless';","const neon=globalThis.__ttcTestNeon;");
+source=source.replace("import {portalApi} from './portal';","const portalApi=globalThis.__ttcPortalTestApi;");
+globalThis.__ttcPortalTestApi=async()=>new Response(JSON.stringify({error:'portal test stub'}),{status:404,headers:{'content-type':'application/json'}});
 source=source.replace("import {normalizeInquiry,validateInquiry,makeReference} from './domain';","const {normalizeInquiry,validateInquiry,makeReference}=globalThis.__ttcTestDomain;");
 const worker=(await import(uri(compile(source)))).default;
 const env={DATABASE_URL:'postgresql://invalid.example/test',IP_HASH_PEPPER:'p'.repeat(64),ADMIN_API_TOKEN:'a'.repeat(64),INQUIRIES_ENABLED:'true',SITE_STATUS:'development',ASSETS:{fetch:()=>new Response('static')}};
