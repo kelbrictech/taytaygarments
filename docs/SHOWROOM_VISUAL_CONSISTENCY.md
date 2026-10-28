@@ -34,8 +34,4 @@ Those need visual inspection.
 
 ## Existing source warning
 
-The current sky-blue and terracotta Active Campus Tee sources have shorter
-silhouettes than the deep-green and navy variants. These images should be
-replaced by full-length same-construction images, NOT enlarged by stretching.
-Run the gate after replacement. Preserve the existing live site until clean
-assets are available; do not claim the current collection passes.
+Historical warning (now addressed in source): sky-blue and terracotta Active Campus Tee images were previously too short. Six full-length images were committed on October 28, 2026 and the technical consistency check passed. Continue human visual inspection for garment construction and genuine view differences; machine metrics alone cannot approve product authenticity.

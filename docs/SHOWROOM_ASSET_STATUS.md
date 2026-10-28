@@ -16,7 +16,7 @@ Authoritative specification: [VIRTUAL_SHOWROOM_VISUAL_ASSET_PRODUCTION_BRIEF.md]
 
 ## Campus Signature Polo and Active Campus Tee
 
-- **TTC-SCH-001 / Campus Signature Polo** — 4 approved showroom colors (white, navy, deepGreen, burgundy), 12 digital concept image files at `public/assets/showroom/TTC-SCH-001/{color}/{angle}.webp`. Live color/view selection tested previously. This set includes extracted concept panels; not actual supplier photography.
+- **TTC-SCH-001 / Campus Signature Polo** — 4 approved showroom colors (white, navy, deepGreen, burgundy), 12 digital concept image files at `public/assets/showroom/TTC-SCH-001/{color}/{angle}.webp`. Live color/view selection tested previously. This set includes extracted concept panels; not actual supplier photography. Neon variants/media reconciled with these exact committed paths on October 28, 2026: **4 colors × 3 angles = 12 concept media records**, verified by read-back query. Migration: `db/003_sync_campus_polo_media.sql`.
 - **TTC-SCH-003 / Active Campus Tee** — 4 exact showroom colors (deepGreen, navy, sky, terracotta), **12** front/side/back digital concept images committed to `main` under `public/assets/showroom/TTC-SCH-003/{color}/{angle}.webp`.
   - GitHub asset/integration commit: `920573ebdf21f5b6fe0ea95ec2ca657b0c8f1d18`.
   - Live color/view verification: 24/24 exact image URL/load checks at mobile width 390px and desktop 1440px. GitHub Actions: `40525154714`, success.

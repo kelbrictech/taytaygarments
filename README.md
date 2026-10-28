@@ -1,26 +1,44 @@
-# Taytay Textile Co. — development full-stack website
+# Taytay Textile Co. — full-stack development site
 
-**Provisional brand**: Public search surfaced a possible existing “Taytay Textile Company”. Clear SEC, DTI, IPOPHL and domain availability before business use.
+**Brand status: provisional.** Clear DTI/SEC/IPOPHL/domain name availability before representing this as a legal company. Concepts must not be represented as existing inventory.
 
-## Stack
-- Approved Loomfield prototype rebranded and preserved with 20 routes and virtual showroom.
-- Cloudflare Workers API with static assets (Wrangler v4).
-- Neon PostgreSQL, dedicated project `fancy-water-27345430` and database `taytay_textile`, Singapore.
-- Cloudinary product concept photographs; URLs in Neon media records.
+## Architecture
 
-## Setup
-1. `npm install` and `npm run typecheck`.
-2. `npx wrangler login` in the **intended Cloudflare account**.
-3. `npx wrangler secret put DATABASE_URL` (pooled Neon connection URI), `npx wrangler secret put ADMIN_API_TOKEN` (32+ random characters), `npx wrangler secret put IP_HASH_PEPPER` (64 random characters).
-4. `npm run dev` to test. `npm run deploy` to deploy to Cloudflare Workers with Assets.
-5. Test `/api/health`, `/api/v1/products` and controlled inquiry submission before sharing publicly.
+Cloudflare Workers + static Assets frontend, TypeScript API, Neon PostgreSQL (existing project `fancy-water-27345430`, `taytay_textile` in Singapore), committed product concepts and optional Cloudinary URLs.
 
-## APIs
-- `GET /api/health`: configuration health.
-- `GET /api/v1/products`: live published product catalog, variant and angle media.
-- `POST /api/v1/inquiries`: persists RFQs and returns tracking reference, requires consent.
-- `GET /api/v1/admin/inquiries`: protected with Bearer ADMIN_API_TOKEN.
-- `PATCH /api/v1/admin/inquiries/{reference}/status`: protected workflow status update.
+- `/` — mobile-responsive website and virtual showroom.
+- `/api/health` — backend health and public inquiry availability (no secrets).
+- `/api/v1/products` — live published catalog with product colors and media.
+- `POST /api/v1/inquiries` — consent-based inquiry storage; disabled until launch controls are enabled.
+- `/track.html` and `GET /api/v1/inquiries/{reference}/status?email=` — customer tracking; no personal details returned.
+- `/admin.html` and `/api/v1/admin/*` — protected catalog and inquiry operations; access policy still required.
 
-## Deployment gates
-The page remains noindex until legal name clearance and verified company information. Product imagery is **concept-only**, not real inventory. Files are **not uploaded** via the quote form. Add Cloudflare Turnstile widget + secret, notification delivery, privacy policy, and production monitoring before accepting real public traffic. This branch must not be considered deployed until a public URL and live API responses are independently verified.
+## Local validation
+
+```sh
+npm install
+npm run typecheck
+npm test
+npm run dev
+```
+
+Backend unit tests use mocked database results. Live database and deployment status are checked separately in GitHub Actions.
+
+## Required deployment configuration
+
+Follow [Full-stack runbook](docs/FULL_STACK_RUNBOOK.md) and [Cloudflare deployment](docs/CLOUDFLARE_DEPLOYMENT.md).
+
+- Cloudflare Worker name is `taytaygarments` in `wrangler.toml`.
+- Set encrypted `DATABASE_URL`, `ADMIN_API_TOKEN`, `IP_HASH_PEPPER` in the correct Worker.
+- `INQUIRIES_ENABLED` defaults to `false` and must stay false until all launch gates pass.
+- `TURNSTILE_SITE_KEY` (public variable) and `TURNSTILE_SECRET` (secret) are required when `SITE_STATUS=production` and inquiries are enabled.
+- GitHub manual deploy workflow uses **repository secrets** `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`; these are unrelated to the Worker application secrets.
+- Database migrations: `db/001_initial.sql`, `db/002_seed_concepts.sql`, `db/003_sync_campus_polo_media.sql`; existing Neon project retains all data.
+
+## Verified / not yet verified
+
+- GitHub CI: 13 tests passed on full-stack build `a2b87e7`.
+- Live Playwright mobile and garment regression: passed for that commit.
+- Neon: exact catalog SQL executed, 12 product records returned; Campus Polo 4 variants and 12 media records after applying migration 003.
+- Public Cloudflare Worker: frontend responds but backend readiness FAILED on October 28, 2026 because `DATABASE_URL` was not configured.
+- Real public inquiry submission: NOT TESTED. Admin access policy, legal/privacy notice, Turnstile production keys, and staff notification remain launch blockers.
