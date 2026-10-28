@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#153c36">
+<title>Account & Operations | Taytay Textile Co.</title>
+<link rel="stylesheet" href="/operations.css">
+<script type="module" src="/operations.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar"><div class="frame bar-inner"><a class="wordmark" href="/#/"><span class="glyph">T</span><span><strong>TAYTAY TEXTILE CO.</strong><small>UNIFORMS &amp; APPAREL</small></span></a><nav aria-label="Website"><a href="/#/showroom">Showroom</a><a href="/#/careers">Careers</a><a href="/#/taytay-hub">Taytay Hub</a><a class="active" href="/portal.html" aria-current="page">Account</a></nav></div></header>
+<main class="frame" id="main">
+<section class="intro"><div><p class="eyebrow">CLIENT &amp; OPERATIONS WORKSPACE / 2026</p><h1 id="welcomeTitle">Your workspace, in one place.</h1><p id="welcomeDesc">Secure order visibility, production coordination, inventory control and website management.</p></div><span class="statuspill">DEMONSTRATION ENVIRONMENT</span></section>
+<div id="message" class="notice" role="status" aria-live="polite" hidden></div>
+<section id="signIn" class="auth-grid">
+<article class="panel auth-panel"><p class="eyebrow">ACCOUNT ACCESS</p><h2>Welcome back.</h2><p>Sign in with the customer, staff, administrator or webmaster account provided to you.</p>
+<form id="loginForm"><label for="loginEmail">Email address</label><input type="email" id="loginEmail" name="email" autocomplete="username" required placeholder="name@example.com">
+<label for="loginPassword">Password</label><input type="password" id="loginPassword" name="password" autocomplete="current-password" required minlength="8">
+<button class="primary" type="submit">Sign in securely <span aria-hidden="true">↗</span></button>
+</form></article>
+<article class="panel more-panel"><p class="eyebrow">FOR OUR PEOPLE</p><h2>Join the operations team.</h2><p>Staff accounts require administrator review before internal dashboards become accessible.</p>
+<details><summary>Request staff access</summary><form id="staffForm">
+<label for="staffName">Full name</label><input id="staffName" name="name" required minlength="3" autocomplete="name">
+<label for="staffEmail">Work email</label><input id="staffEmail" type="email" name="email" required autocomplete="email">
+<label for="staffPassword">Create a password (15+ characters)</label><input id="staffPassword" type="password" name="password" minlength="15" maxlength="128" autocomplete="new-password" required>
+<label class="check"><input name="consent" type="checkbox" required> I consent to this account request being processed for staff access review.</label>
+<input class="hidden" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+<button class="outline" type="submit">Request approval</button></form></details>
+<p class="help">Customer credentials are issued with an order account. Demo records and listings do not represent real client orders or job vacancies.</p></article></section>
+<section id="workspace" hidden>
+<div class="dashhead"><div><p class="eyebrow" id="roleLabel"></p><h2 id="userName"></h2><p class="small" id="userEmail"></p></div><button id="signOut" class="outline">Sign out</button></div>
+<div id="metrics" class="metric-grid" aria-label="Dashboard summary"></div>
+<nav id="tabs" class="tabs" aria-label="Workspace sections"></nav>
+<div id="dashboardBody"></div>
+<section class="panel account-panel"><details><summary>Account security · Change password</summary><form id="changeForm" class="form-grid">
+<label>Current password<input name="current" type="password" autocomplete="current-password" required></label>
+<label>New password (15+ characters)<input name="next" type="password" minlength="15" maxlength="128" autocomplete="new-password" required></label>
+<button class="outline" type="submit">Change password and sign out</button></form></details></section>
+</section>
+</main>
+<footer><div class="frame"><span>TAYTAY TEXTILE CO. · TAYTAY, RIZAL</span><span>Development demonstration · Fictional test records</span></div></footer>
+</body></html>
