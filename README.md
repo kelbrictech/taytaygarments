@@ -32,7 +32,7 @@ Follow [Full-stack runbook](docs/FULL_STACK_RUNBOOK.md) and [Cloudflare deployme
 - Set encrypted `DATABASE_URL`, `ADMIN_API_TOKEN`, `IP_HASH_PEPPER` in the correct Worker.
 - `INQUIRIES_ENABLED` defaults to `false` and must stay false until all launch gates pass.
 - `TURNSTILE_SITE_KEY` (public variable) and `TURNSTILE_SECRET` (secret) are required when `SITE_STATUS=production` and inquiries are enabled.
-- GitHub manual deploy workflow uses **repository secrets** `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`; these are unrelated to the Worker application secrets.
+- The existing **Cloudflare Workers Builds → GitHub** connection deploys commits from `main`; verified successful Cloudflare check on commit `a3091c0` (2026-10-28). Do not add another GitHub Actions deployment or repository Cloudflare API credentials. Production URL: https://taytaygarments.arjayb-fb.workers.dev/#/resources.
 - Database migrations: `db/001_initial.sql`, `db/002_seed_concepts.sql`, `db/003_sync_campus_polo_media.sql`; existing Neon project retains all data.
 
 ## Verified / not yet verified
@@ -40,5 +40,5 @@ Follow [Full-stack runbook](docs/FULL_STACK_RUNBOOK.md) and [Cloudflare deployme
 - GitHub CI: 13 tests passed on full-stack build `a2b87e7`.
 - Live Playwright mobile and garment regression: passed for that commit.
 - Neon: exact catalog SQL executed, 12 product records returned; Campus Polo 4 variants and 12 media records after applying migration 003.
-- Public Cloudflare Worker: frontend responds but backend readiness FAILED on October 28, 2026 because `DATABASE_URL` was not configured.
+- Cloudflare Workers Builds completed successfully for commit `a3091c0`, independently confirmed using the Cloudflare GitHub check run. This verifies the build, not database readiness. Last executed live readiness check (2026-10-28) reported `databaseConfigured:false` and product HTTP 503; recheck after configuring the Worker secret.
 - Real public inquiry submission: NOT TESTED. Admin access policy, legal/privacy notice, Turnstile production keys, and staff notification remain launch blockers.
