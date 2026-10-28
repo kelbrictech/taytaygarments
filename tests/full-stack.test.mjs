@@ -63,7 +63,7 @@ test('reference and email allow limited status lookup',async()=>{
  const wrong=await worker.fetch(req('/api/v1/inquiries/TTC-2026-12345678/status?email=wrong%40example.com'),env);
  assert.equal(wrong.status,404);
 });
-test('admin endpoints require bearer token',async()=>{
- const denied=await worker.fetch(req('/api/v1/admin/inquiries'),env);assert.equal(denied.status,401);
- const allowed=await worker.fetch(req('/api/v1/admin/inquiries',{headers:{authorization:'Bearer '+env.ADMIN_API_TOKEN}}),env);assert.equal(allowed.status,200);
+test('retired admin API cannot bypass staff and administrator sessions',async()=>{
+ const denied=await worker.fetch(req('/api/v1/admin/inquiries'),env);assert.equal(denied.status,410);
+ const legacyToken=await worker.fetch(req('/api/v1/admin/inquiries',{headers:{authorization:'Bearer '+env.ADMIN_API_TOKEN}}),env);assert.equal(legacyToken.status,410);
 });
