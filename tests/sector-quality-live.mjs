@@ -1,6 +1,13 @@
 import {chromium} from 'playwright';
 import fs from 'node:fs';
 const base='https://taytaygarments.arjayb-fb.workers.dev/';
+// Cloudflare's native build often completes after GitHub Actions begins; verify the release marker before browser assertions.
+let liveReady=false;
+for(let attempt=0;attempt<48;attempt++){
+ try {const r=await fetch(base,{cache:'no-store'});if(r.ok&&(await r.text()).includes('headless-school-v3')){liveReady=true;break}}catch{}
+ await new Promise(resolve=>setTimeout(resolve,5000));
+}
+if(!liveReady)throw Error('Cloudflare has not deployed the headless sector assets to production.');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 fs.mkdirSync('artifacts/sector-quality',{recursive:true});
 const results=[];
@@ -17,6 +24,7 @@ try {
   for(const [index,img] of images.entries()){
    if(img.naturalWidth<850||img.naturalHeight<1050)throw Error('Blurry/undersized sector image '+index+' '+JSON.stringify(img));
    if(!img.src.includes('res.cloudinary.com/boay3ffi/image/upload/'))throw Error('Sector photo is not served by project CDN');
+   if(!img.src.includes('/headless-')||!img.src.includes('-v3.jpg'))throw Error('Live sector image is not headless v3 asset: '+img.src);
   }
   const rects=await cards.evaluateAll(els=>els.slice(0,4).map(el=>{const r=el.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}}));
   const distinctRows=new Set(rects.map(r=>Math.round(r.y/10)*10)).size;
