@@ -30,7 +30,7 @@
 /* Narrow-phone experience: full-width, readable editorial cards. */
 @media (max-width:640px){
  .sector-grid{grid-template-columns:minmax(0,1fr);gap:16px}
- .sector-card{height:auto;min-height:340px;max-height:430px;aspect-ratio:1.05}
+ .sector-card{height:auto;min-height:430px;max-height:560px;aspect-ratio:.82}
  .sector-card>img{object-position:50% 33%}
  .sector-card h3{font-size:clamp(25px,6.6vw,33px);line-height:1.08;margin:0}
  .sector-card p{font-size:14px;line-height:1.45;max-width:365px;padding-right:42px}

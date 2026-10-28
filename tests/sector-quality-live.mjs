@@ -16,6 +16,13 @@ try {
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:40000});
+  // Screenshot the actual Cloudflare homepage with the mannequin hero before scrolling.
+  await page.waitForFunction(() => {
+   const hero=document.querySelector('.hero-cover');
+   return hero && hero.getAttribute('src')==='/assets/mannequins/hero.svg';
+  },null,{timeout:40000});
+  await page.evaluate(async()=>{const hero=document.querySelector('.hero-cover');await hero.decode()});
+  await page.screenshot({path:'artifacts/sector-quality/homepage-'+width+'.png'});
   // Wait for the SPA's final route render; avoid Playwright scroll instability during replacement.
   await page.waitForFunction(() => {
    const images=[...document.querySelectorAll('.sector-card img')];
