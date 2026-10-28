@@ -1,28 +1,26 @@
-# Mannequin Visual Production Standard — Taytay Textile Co.
+# Photorealistic Mannequin Asset Production — 2026-10-28
 
-## Client direction
-The site's primary product-sector imagery uses **headless upper-torso and lower-body mannequin modelling**; no realistic human face or AI-generated lookalike portraits. Keep the actual website imagery aligned with the approved frontend visual direction.
+## Scope
+The Taytay Textile Co. homepage hero and four industry cards display **photorealistic headless mannequins wearing garment samples**, including school attire, formalwear, institutional uniforms and chef/workwear. This replaces the intentionally rejected geometric SVG mannequin illustrations.
 
-## What is actually deployed
-Five original, infinitely scalable vector mannequin studies are committed in GitHub and served directly by Cloudflare. These are **custom SVG illustrations** with material shading, stitching details, garment construction, realistic uniform silhouettes and consistent studio backgrounds. They are not photorealistic renders or literal photography. The image preview generated in the ChatGPT conversation is a visual proposal and is not used as a site screenshot.
+## Authentic source and production pipeline
+The visuals are prepared from the client's accepted **AI-generated mannequin website visual reference** as photographed-looking source art. The source was converted to an image in the connected Canva workspace and uploaded into the project's Cloudinary account, with a four-times AI super-resolution pass and five separate garment-focused crops. Each crop was prepared and stored as a derived Cloudinary asset; the production website references those exact asset URLs. Do not describe these as photographic evidence of real manufacturing work, real client contracts, genuine customer uniforms or real company premises.
 
-- `public/assets/mannequins/hero.svg` — four headless full-body mannequins across school, corporate, institutional and specialist uniforms. Served directly by Cloudflare static assets.
-- `public/assets/mannequins/schools.svg` — white blouse with navy skirt beside white shirt and navy trousers.
-- `public/assets/mannequins/corporate.svg` — tailored formal jackets and trousers on dress forms.
-- `public/assets/mannequins/government.svg` — blue utility uniform alongside white barong-style uniform and tailored trousers.
-- `public/assets/mannequins/specialized.svg` — chef uniform/apron and green scrubs with lower-body modelling.
+Cloudinary resource: `taytay-textile-co/dev/reference-s3-probe` (a cropped asset source derived from the approved concept screenshot). Prepared delivery URLs use `e_upscale/c_crop/c_fill`, dimensions `900 × 1100` for sectors and `1600 × 700` for the hero.
 
-Two supporting secondary images (`VISUALS.factory`, `VISUALS.machine`) continue to use licensed headless stock photographs (hands sewing, machinery only). The showroom's independently approved product photography remains unchanged.
+- School: photorealistic white blouse, navy ribbon and skirt displayed on a headless dress form.
+- Corporate: photorealistic tailored gray formal suit.
+- Government: blue institutional shirt and tailored uniform trousers; absence of real issuer logos or governmental affiliation is intentional.
+- Specialized: professional white chef coat with dark apron.
+- Hero: coordinated headless mannequin group with formal and specialist attire, from the same visual reference.
 
-## Business and legal integrity
-- Never imply mannequin concept models represent sold garments, approved client designs, registered manufacturers or actual inventory.
-- The Philippine-made identity mark is original site typography, not a regulatory origin certificate.
-- Credential/trust directory retains separate proof statuses and no fabricated government approvals or official seals.
-- Do not invent company uniform badges, school logos, institutional insignia or medical marks.
-- Render source SVGs as static browser assets: no remote fonts, scripts, active SVG events, or data URIs.
+Supporting hands-on sewing and sewing-machine photography remains on the manufacturing subpages. The separate approved 12-view showroom product media registry remains unchanged.
 
-## Technical evidence
-- Source: `public/assets/mannequins/*.svg`; each card uses its own distinct asset.
-- Source tests check every link, SVG existence and source properties.
-- GitHub Actions live-sector audit checks actual image loading at widths 390, 800, 1024 and 1440px, legible captions and zero horizontal overflow.
-- Any further visual revisions must update the source files in this repository and redeploy to Cloudflare, rather than displaying separate aspirational page images.
+## Trust, honesty and release rules
+- All mannequin images are **AI-generated illustrative concept studies**. Actual garments, origin of production, certification, client affiliation and capacity require independent confirmation.
+- Never copy claim badges from the mockup: the Trust & Verification registry still displays evidence requirements rather than unearned registrations.
+- Do not invent a company emblem, agency insignia, or institutional seal on garment photos.
+- Any future hero or card redesign must update production asset URLs and run responsive browser checks. Avoid separate aspirational screenshots that aren't the real site.
+
+## Tests
+The GitHub CI validates specific photographic Cloudinary transforms and excludes SVG mannequin paths. The GitHub live-sector browser workflow checks successful image decoding, output resolution and responsive layouts at 390/800/1024/1440px. Screenshot artifacts are created from the live Cloudflare Worker itself.

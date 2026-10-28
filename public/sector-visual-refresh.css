@@ -42,3 +42,7 @@
  .sector-card,.sector-card>img{transition:none}
  .sector-card:hover,.sector-card:hover>img{transform:none}
 }
+/* Real-photography treatment: preserve natural cloth texture and keep product anatomy visible. */
+.sector-card>img{filter:none;object-position:50% 34%;}
+.sector-card:before{background:linear-gradient(180deg,rgba(10,28,29,.08) 0%,rgba(10,28,29,.04) 45%,rgba(8,22,24,.48) 74%,rgba(8,22,24,.93) 100%);}
+@media(max-width:640px){.sector-card>img{object-position:50% 28%;}}
