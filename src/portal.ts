@@ -22,6 +22,11 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
  if(!e.DATABASE_URL)return reply({error:'Database connection is not configured.'},503);
  const db=neon(e.DATABASE_URL);
  const q=(sql:string,args:any[]=[])=>db.query(sql,args);
+
+ if(path==='/api/v2/trust'&&method==='GET'){
+  const rows=await q("SELECT slug,title,category,issuer,description,source_url,proof_kind,CASE WHEN status='documented' AND certificate_ref<>'' AND verification_url<>'' AND (valid_until IS NULL OR valid_until>=CURRENT_DATE) THEN 'documented' ELSE 'research' END AS status,CASE WHEN status='documented' AND certificate_ref<>'' AND verification_url<>'' AND (valid_until IS NULL OR valid_until>=CURRENT_DATE) THEN certificate_ref ELSE '' END AS certificate_ref,CASE WHEN status='documented' AND certificate_ref<>'' AND verification_url<>'' AND (valid_until IS NULL OR valid_until>=CURRENT_DATE) THEN verification_url ELSE '' END AS verification_url,CASE WHEN status='documented' AND certificate_ref<>'' AND verification_url<>'' AND (valid_until IS NULL OR valid_until>=CURRENT_DATE) THEN valid_until ELSE NULL END AS valid_until FROM ttc_trust_badges ORDER BY category,title");
+  return reply({badges:rows,verifiedExternally:false,notice:'Research topics are not registrations, memberships, certifications or audit results. Documented credentials are company-reviewed and linked to evidence; buyers should verify with the issuing authority.'});
+ }
  if(path==='/api/v2/jobs'&&method==='GET')return reply({jobs:await q('SELECT code,title,department,location,arrangement,summary,demo FROM ttc_jobs WHERE published=true ORDER BY code'),notice:'All displayed openings are sample demonstration positions, not actual vacancies.'});
  const page=path.match(/^\/api\/v2\/pages\/(taytay-hub|careers|homepage-note)$/);
  if(page&&method==='GET'){const rows=await q('SELECT slug,title,body FROM ttc_content_pages WHERE slug=$1 AND published=true',[page[1]]);return rows.length?reply({page:rows[0]}):reply({error:'Page unavailable.'},404)}
@@ -181,6 +186,32 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
   const rows=await q("SELECT o.order_no,o.status,o.description,o.demo,e.status AS event_status,e.note,e.created_at FROM ttc_orders o LEFT JOIN ttc_order_events e ON e.order_id=o.id WHERE o.order_no=$1 AND ($2::boolean=true OR o.customer_id=$3::uuid) ORDER BY e.created_at ASC",[timeline[1],access(s,['staff','admin']),s.user_id]);
   if(!rows.length)return reply({error:'Order not found.'},404);
   return reply({order:{order_no:rows[0].order_no,status:rows[0].status,description:rows[0].description,demo:rows[0].demo},events:rows.filter(x=>x.event_status).map(x=>({status:x.event_status,note:x.note,created_at:x.created_at}))});
+ }
+
+ if(path==='/api/v2/trust/manage'&&method==='GET'){
+  if(!access(s,['admin','webmaster']))return denied();
+  return reply({badges:await q("SELECT slug,title,category,issuer,proof_kind,source_url,status,certificate_ref,verification_url,valid_until,review_note,updated_at FROM ttc_trust_badges ORDER BY category,title")});
+ }
+ const proof=path.match(/^\/api\/v2\/trust\/([a-z0-9-]+)\/proof$/);
+ if(proof&&method==='PATCH'){
+  if(!access(s,['admin','webmaster']))return denied();
+  let x;try{x=await body(r)}catch{return reply({error:'Invalid evidence submission.'},400)}
+  const reference=clean(x.reference,140),verificationUrl=clean(x.verificationUrl,550),until=clean(x.validUntil,10),note=clean(x.note,450);
+  if(reference.length<4||!/^https:\/\//.test(verificationUrl)||!/^https:\/\/[a-z0-9.-]+(?:\/|$)/i.test(verificationUrl)||until&&!/^\d{4}-\d{2}-\d{2}$/.test(until))
+    return reply({error:'Provide a reference, an HTTPS verification link and a valid date format.'},422);
+  const rows=await q("UPDATE ttc_trust_badges SET certificate_ref=$1,verification_url=$2,valid_until=$3::date,review_note=$4,status='submitted',reviewed_by=NULL,updated_at=now() WHERE slug=$5 RETURNING slug,title,status",[reference,verificationUrl,until||null,note,proof[1]]);
+  if(!rows.length)return reply({error:'Badge not found.'},404);
+  await audit('trust-evidence-submitted','badge',proof[1]);return reply({badge:rows[0]});
+ }
+ const review=path.match(/^\/api\/v2\/trust\/([a-z0-9-]+)\/review$/);
+ if(review&&method==='PATCH'){
+  if(s.role!=='admin')return denied();
+  let x;try{x=await body(r)}catch{return reply({error:'Invalid review request.'},400)}
+  const action=clean(x.status,20),note=clean(x.note,450);
+  if(!['documented','research','withdrawn'].includes(action))return reply({error:'Unknown badge status.'},422);
+  const rows=await q("UPDATE ttc_trust_badges SET status=$1,review_note=$2,reviewed_by=$3,updated_at=now() WHERE slug=$4 AND ($1<>'documented' OR (status='submitted' AND length(certificate_ref)>=4 AND verification_url LIKE 'https://%' AND (valid_until IS NULL OR valid_until>=CURRENT_DATE))) RETURNING slug,title,status",[action,note,s.user_id,review[1]]);
+  if(!rows.length)return reply({error:'No valid submitted evidence to document. Check reference, official verification URL and expiration.'},409);
+  await audit('trust-review:'+action,'badge',review[1]);return reply({badge:rows[0]});
  }
  if(path==='/api/v2/audit'&&method==='GET'){
   if(s.role!=='admin')return denied();return reply({events:await q('SELECT a.action,a.entity,a.entity_key,a.created_at,u.full_name AS actor FROM ttc_audit_log a LEFT JOIN ttc_users u ON u.id=a.actor_id ORDER BY a.created_at DESC LIMIT 100')});
