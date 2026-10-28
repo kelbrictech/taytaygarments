@@ -1,0 +1,35 @@
+name: Customer account location, separation and order privacy
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/index.html'
+      - 'public/customer.html'
+      - 'public/customer.css'
+      - 'public/customer.js'
+      - 'public/operations.js'
+      - 'public/portal.html'
+      - 'public/track.html'
+      - 'tests/customer-entry-live.mjs'
+      - '.github/workflows/customer-entry-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-audit --no-fund playwright
+      - run: npx playwright install chromium
+      - name: Verify showroom-to-customer login and protected order tracking
+        run: node tests/customer-entry-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: customer-entry-mobile-and-desktop
+          path: artifacts/customer-access/*.png
