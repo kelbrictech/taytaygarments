@@ -1,0 +1,47 @@
+
+/* Taytay Textile Co. — trust identity extension; retains pine, parchment and copper tokens. */
+.ph-made-stamp{display:flex;align-items:center;gap:14px;width:max-content;max-width:100%;margin:20px 0 27px;padding:10px 17px 10px 10px;background:#f5ecda16;border:1px solid #edc5a37e;box-shadow:0 10px 20px #102c2915;color:#fff}
+.ph-made-monogram{background:#eed4b3;color:#173c34;display:grid;place-items:center;width:58px;height:58px;flex-shrink:0;font:700 26px Georgia,serif;border-left:5px solid #b96e4c}
+.ph-made-copy strong{display:block;font:700 clamp(13px,1.3vw,18px)/1.2 Georgia,serif;letter-spacing:.09em;color:#f8ead3}
+.ph-made-copy small{display:block;margin-top:4px;font-size:11px;color:#d9e8dd;letter-spacing:.025em}
+.homepage-trust-ribbon{background:#f8f6ef;border-top:1px solid #e9e5d7;border-bottom:1px solid #d9ded4}
+.homepage-trust-ribbon>.wrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.trust-ribbon-piece{display:flex;align-items:center;gap:13px;padding:23px 18px;border-right:1px solid #dedfd6;text-decoration:none;transition:background .15s}
+.trust-ribbon-piece:last-child{border-right:none}.trust-ribbon-piece:hover{background:#ecf2ea}
+.trust-ribbon-icon{flex:0 0 44px;height:44px;border:1px solid #cbb7a4;display:grid;place-items:center;color:#9b6f53;font:700 19px Georgia,serif}
+.trust-ribbon-piece strong{display:block;font-size:14px;letter-spacing:-.015em;color:#18392f}
+.trust-ribbon-piece small{font-size:12px;color:#63786a;display:block}
+.trust-intro-section{padding:clamp(48px,7vw,90px) 0;background:#fffdfa}
+.trust-lede-grid{display:grid;grid-template-columns:1.45fr .55fr;gap:clamp(30px,6vw,80px);align-items:start}
+.trust-heritage-banner{display:grid;grid-template-columns:minmax(140px,.5fr) 1fr;gap:clamp(20px,3vw,36px);align-items:center}
+.trust-heritage-badge{display:flex;flex-direction:column;justify-content:space-between;background:#153c36;padding:18px;min-height:300px;box-shadow:12px 12px 0 #d6b498;color:#fff}
+.trust-heritage-badge small,.trust-heritage-badge span{font-size:10px;letter-spacing:.14em;color:#dbc09f}
+.trust-heritage-badge strong{font:500 clamp(27px,3.2vw,46px)/1.02 Georgia,serif;letter-spacing:-.055em}
+.trust-heritage-banner h2{font-size:clamp(28px,3.4vw,48px)}
+.trust-heritage-banner p,.trust-principles p{font-size:14px;line-height:1.8;color:#566a60}
+.trust-principles{border-top:3px solid #bf7853;padding-top:19px}.trust-principles h3{font-size:28px}
+.trust-legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:55px;padding:24px 0 0;border-top:1px solid #e0e5dc;font-size:12px;color:#607469}
+.trust-legend span{display:flex;align-items:center;gap:7px}
+.legend-dot{display:inline-block;flex:0 0 10px;width:10px;height:10px;background:#688575}
+.legend-origin{background:#b37955}.legend-pending{background:#c0bfb1}.legend-documented{background:#3f8661}
+.trust-filters{display:flex;flex-wrap:wrap;gap:9px;margin:28px 0 24px}
+.trust-filters button{border:1px solid #cbd7ca;background:#f8f8f5;color:#476055;border-radius:2px;padding:10px 14px;font-weight:750;font-size:12px;min-height:42px}
+.trust-filters button.active,.trust-filters button:hover{background:#153c36;color:#fff;border-color:#153c36}
+.trust-badge-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.trust-badge-item{border:1px solid #dce1d7;padding:clamp(19px,2.5vw,28px);background:#fff;min-width:0;display:flex;flex-direction:column}
+.trust-badge-item.has-proof{border-color:#89b69a;box-shadow:inset 3px 0 #408c63}
+.trust-badge-top{display:flex;align-items:start;gap:8px;justify-content:space-between}
+.trust-badge-monogram{display:grid;place-items:center;width:48px;height:48px;flex-shrink:0;border:1px solid #c6d1c7;color:#325a49;font:500 19px Georgia,serif;background:#f4f6f0}
+.trust-badge-state{font-size:10px;letter-spacing:.04em;color:#657667;padding:5px 8px;background:#f1f1ed;font-weight:800;text-align:right}
+.has-proof .trust-badge-state{background:#eaf5ed;color:#296744}
+.trust-badge-item h3{font-size:clamp(22px,2.2vw,29px);margin:25px 0 8px;line-height:1.15}
+.trust-badge-item p{font-size:13px;line-height:1.7;margin-bottom:12px}
+.trust-badge-item .trust-issuer{font-size:11px;font-weight:800;letter-spacing:.025em;color:#8b6a55;margin-bottom:12px}
+.trust-pending-note{display:block;font-size:11px;margin:auto 0 13px;color:#7c877b}
+.trust-issuer-link,.trust-proof-link{display:block;margin-top:auto;padding-top:12px;text-decoration:underline;text-underline-offset:3px;color:#255845;font-weight:720;font-size:12px}
+.trust-proof{margin-top:auto}.trust-loading{padding:25px;border:1px dashed #bdd0c3;color:#61786a;grid-column:1/-1}
+.trust-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.trust-sources a{display:flex;justify-content:space-between;gap:16px;padding:16px 18px;background:#fff;border:1px solid #dae4dc;color:#244839;font-size:14px;font-weight:720;text-decoration:none}
+.trust-sources a:hover{border-color:#a56f54}
+@media(max-width:1000px){.trust-lede-grid{grid-template-columns:1fr}.trust-badge-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.homepage-trust-ribbon>.wrap{grid-template-columns:1fr 1fr}.trust-ribbon-piece:nth-child(2){border:0}.trust-ribbon-piece:last-child{grid-column:1/-1;border-top:1px solid #dde2d9}}
+@media(max-width:640px){.ph-made-monogram{width:46px;height:46px;font-size:22px}.ph-made-copy strong{font-size:13px}.ph-made-copy small{font-size:10px}.homepage-trust-ribbon>.wrap{grid-template-columns:1fr}.trust-ribbon-piece{padding:15px 8px;border-right:none;border-bottom:1px solid #dde2d9}.trust-ribbon-piece:last-child{grid-column:1;border-top:0}.trust-heritage-banner{grid-template-columns:1fr}.trust-heritage-badge{min-height:220px;max-width:330px}.trust-badge-grid,.trust-sources{grid-template-columns:1fr}.trust-legend{gap:12px;margin-top:30px}.trust-badge-item{min-height:0}}
