@@ -4,10 +4,10 @@ const base='https://taytaygarments.arjayb-fb.workers.dev/';
 // Cloudflare's native build often completes after GitHub Actions begins; verify the release marker before browser assertions.
 let liveReady=false;
 for(let attempt=0;attempt<48;attempt++){
- try {const r=await fetch(base,{cache:'no-store'});if(r.ok&&(await r.text()).includes('headless-school-v3')){liveReady=true;break}}catch{}
+ try {const r=await fetch(base,{cache:'no-store'});if(r.ok&&(await r.text()).includes('/assets/mannequins/schools.svg')){liveReady=true;break}}catch{}
  await new Promise(resolve=>setTimeout(resolve,5000));
 }
-if(!liveReady)throw Error('Cloudflare has not deployed the headless sector assets to production.');
+if(!liveReady)throw Error('Cloudflare has not deployed the mannequin SVG sector assets to production.');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 fs.mkdirSync('artifacts/sector-quality',{recursive:true});
 const results=[];
@@ -19,7 +19,7 @@ try {
   // Wait for the SPA's final route render; avoid Playwright scroll instability during replacement.
   await page.waitForFunction(() => {
    const images=[...document.querySelectorAll('.sector-card img')];
-   return images.length>=4 && images.every(img=>img.getAttribute('src')?.includes('/headless-'));
+   return images.length>=4 && images.every(img=>img.getAttribute('src')?.includes('/assets/mannequins/'));
   },null,{timeout:40000});
   await page.evaluate(()=>document.querySelector('.sector-card')?.scrollIntoView({block:'center',behavior:'instant'}));
   const cards=page.locator('.sector-card');if(await cards.count()<4)throw Error('Missing sector cards');
@@ -27,8 +27,7 @@ try {
   const images=await cards.locator('img').evaluateAll(imgs=>imgs.slice(0,4).map(img=>({naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,src:img.currentSrc,complete:img.complete})));
   for(const [index,img] of images.entries()){
    if(img.naturalWidth<850||img.naturalHeight<1050)throw Error('Blurry/undersized sector image '+index+' '+JSON.stringify(img));
-   if(!img.src.includes('res.cloudinary.com/boay3ffi/image/upload/'))throw Error('Sector photo is not served by project CDN');
-   if(!img.src.includes('/headless-')||!img.src.includes('-v3.jpg'))throw Error('Live sector image is not headless v3 asset: '+img.src);
+   if(!img.src.includes('/assets/mannequins/')||!img.src.endsWith('.svg'))throw Error('Expected a committed mannequin artwork: '+img.src);
   }
   const rects=await cards.evaluateAll(els=>els.slice(0,4).map(el=>{const r=el.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}}));
   const distinctRows=new Set(rects.map(r=>Math.round(r.y/10)*10)).size;
