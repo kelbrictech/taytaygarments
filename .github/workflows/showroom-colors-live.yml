@@ -1,0 +1,25 @@
+name: Live showroom color-selector consistency
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/index.html'
+      - 'public/ttc-integration.js'
+      - 'tests/showroom-color-consistency-live.mjs'
+      - '.github/workflows/showroom-colors-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-audit --no-fund playwright
+      - run: npx playwright install chromium
+      - name: Verify 12 selectors and protect 3 completed product variants
+        run: node tests/showroom-color-consistency-live.mjs

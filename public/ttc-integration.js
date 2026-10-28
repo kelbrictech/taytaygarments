@@ -42,12 +42,16 @@ function applyTeeViews(){
 applyTeeViews();
 async function syncCatalog(){try{const res=await fetch('/api/v1/products');if(!res.ok)return;const {products:rows}=await res.json();if(!Array.isArray(rows)||!rows.length)return;
 const merged=rows.map(row=>{const original=products.find(p=>p.id===row.slug);const variants=Array.isArray(row.variants)?row.variants:[];const primary=variants.find(v=>v.default)||variants[0]||{};
-const colors=variants.filter(v=>v.views?.front?.url).map(v=>v.color);if(primary.views?.front?.url)PRODUCT_PHOTOS[row.slug]=primary.views.front.url;
-return {...(original||{id:row.slug,type:'custom'}),id:row.slug,sku:row.sku,name:row.name,category:row.category,subtitle:row.subtitle,fabric:row.fabric||original?.fabric||'Specification-based',finish:row.finish||original?.finish||'To be confirmed',use:row.applications||original?.use||row.category,variants,colors:colors.length?colors:[primary.color||'navy'],color:primary.color||original?.color||'navy'};
+// Preserve every established showroom color preference, even when Neon has only one photographic variant.
+// The three approved full-view styles keep their exact source variants below; never manufacture missing color photos.
+const colors=[...new Set([...(original?.colors||[]),...variants.map(v=>v.color).filter(Boolean)])];
+if(primary.views?.front?.url)PRODUCT_PHOTOS[row.slug]=primary.views.front.url;
+return {...(original||{id:row.slug,type:'custom'}),id:row.slug,sku:row.sku,name:row.name,category:row.category,subtitle:row.subtitle,fabric:row.fabric||original?.fabric||'Specification-based',finish:row.finish||original?.finish||'To be confirmed',use:row.applications||original?.use||row.category,variants,colors:colors.length?colors:[primary.color||original?.color||'navy'],color:primary.color||original?.color||'navy'};
 });
 products.splice(0,products.length,...merged);
 applyBlazerViews();applyPoloViews();applyTeeViews();
 if(typeof route==='function'&&!document.querySelector('#modalHost [role="dialog"]'))route(false);
+document.documentElement.dataset.ttcCatalogSynced='true';
 }catch{console.info('Catalog API unavailable. Embedded concept items remain visible.');}}
 function updateAngles(){if(typeof modalPid==='undefined'||!modalPid)return;const p=products.find(x=>x.id===modalPid);const visual=document.querySelector('#modalVisual');if(!p||!visual||visual.querySelector('.ttc-angle-set'))return;
 const variant=p.variants?.find(v=>v.color===modalColor);if(!variant)return;const views=variant.views||{};const available=['front','side','back'].filter(angle=>views[angle]?.url);if(!available.length)return;
