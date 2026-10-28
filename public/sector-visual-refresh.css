@@ -1,0 +1,44 @@
+/* Taytay Textile Co. — 2026 responsive sector image-quality correction.
+   Final override of legacy V1/V2 breakpoints; preserves the existing identity. */
+.sector-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.sector-card{isolation:isolate;display:block;position:relative;overflow:hidden;padding:0;min-height:380px;height:auto;aspect-ratio:0.76;border:0;border-radius:4px;background:#263a36;box-shadow:0 14px 24px rgba(16,35,36,.12);color:#fff;transition:box-shadow .25s,transform .25s}
+.sector-card>img{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 35%;filter:none;transform:scale(1);transition:transform .4s ease}
+.sector-card:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(10,28,29,.19) 0%,rgba(10,28,29,.03) 38%,rgba(10,28,29,.43) 66%,rgba(8,22,24,.95) 100%);pointer-events:none}
+.sector-card:hover>img,.sector-card:focus-visible>img{transform:scale(1.025)}
+.sector-card:hover{border:0;transform:translateY(-3px);box-shadow:0 18px 35px rgba(16,35,36,.18)}
+.sector-card .card-index{position:absolute;z-index:2;left:22px;top:22px;padding:5px 7px;font-size:10px;line-height:1.2;font-weight:700;letter-spacing:.10em;text-shadow:0 1px 3px #0008;color:#fff}
+.sector-card-content{z-index:2;position:absolute;left:22px;right:20px;bottom:24px;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.sector-card h3{font:400 clamp(24px,2.05vw,29px)/1.1 Georgia,'Times New Roman',serif;letter-spacing:-.035em;margin:0;color:#fff;max-width:100%}
+.sector-card p{font-size:clamp(13px,1.05vw,15px);line-height:1.5;color:#f3eee5;margin:0;padding:0 34px 0 0;max-width:100%}
+.sector-card .card-arrow{position:absolute;right:0;bottom:0;display:grid;place-items:center;width:36px;height:36px;line-height:1;background:#e9dfcc;border:1px solid #e9dfcc;border-radius:50%;color:#233931;font-size:19px}
+.sector-card .card-index,.sector-card-content{text-shadow:0 1px 3px rgba(0,0,0,.4)}
+/* Two-column cards where navigation already uses the compact menu. */
+@media (min-width:851px) and (max-width:1279px){
+ .sector-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+ .sector-card{min-height:375px;max-height:480px;aspect-ratio:1.05}
+ .sector-card h3{font-size:clamp(27px,3.4vw,36px)}
+ .sector-card p{font-size:15px;max-width:400px}
+}
+/* Tablet and large phone: readable 2-up cards. */
+@media (min-width:641px) and (max-width:850px){
+ .sector-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+ .sector-card{min-height:335px;aspect-ratio:.88}
+ .sector-card h3{font-size:26px}
+ .sector-card p{font-size:13.5px;line-height:1.5}
+ .sector-card-content{left:20px;right:20px;bottom:22px}
+}
+/* Narrow-phone experience: full-width, readable editorial cards. */
+@media (max-width:640px){
+ .sector-grid{grid-template-columns:minmax(0,1fr);gap:16px}
+ .sector-card{height:auto;min-height:340px;max-height:430px;aspect-ratio:1.05}
+ .sector-card>img{object-position:50% 33%}
+ .sector-card h3{font-size:clamp(25px,6.6vw,33px);line-height:1.08;margin:0}
+ .sector-card p{font-size:14px;line-height:1.45;max-width:365px;padding-right:42px}
+ .sector-card-content{left:22px;right:20px;bottom:23px;gap:9px}
+ .sector-card .card-index{left:20px;top:20px;font-size:11px}
+ .sector-card .card-arrow{width:38px;height:38px;font-size:20px}
+}
+@media(prefers-reduced-motion:reduce){
+ .sector-card,.sector-card>img{transition:none}
+ .sector-card:hover,.sector-card:hover>img{transform:none}
+}
