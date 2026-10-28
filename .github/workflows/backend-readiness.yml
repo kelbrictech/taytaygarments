@@ -1,0 +1,26 @@
+name: Live backend readiness
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/worker.ts'
+      - 'public/ttc-integration.js'
+      - 'wrangler.toml'
+      - '.github/workflows/backend-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify real Cloudflare API and Neon catalog
+        env:
+          ORIGIN: https://taytaygarments.arjayb-fb.workers.dev
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 "$ORIGIN/api/health" -o health.json
+          node -e "const h=require('./health.json');if(!h.databaseConfigured)throw Error('Neon connection missing');console.log('databaseConfigured=true; inquirySubmissionEnabled='+h.inquirySubmissionEnabled)"
+          curl -fsS --retry 3 "$ORIGIN/api/v1/products" -o catalog.json
+          node -e "const c=require('./catalog.json');if(!Array.isArray(c.products)||c.products.length<12)throw Error('Live catalog incomplete');console.log('Live catalog count:',c.products.length)"

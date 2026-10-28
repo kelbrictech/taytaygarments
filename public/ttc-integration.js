@@ -60,16 +60,53 @@ visual.append(nav);
 }
 function attach(){const panel=document.querySelector('.form-panel');if(!panel||panel.querySelector('#submitTTC'))return;
 const block=document.createElement('div');block.className='ttc-submit';
-block.innerHTML='<h3>Submit your project inquiry</h3><p>A reference number confirms database receipt; it does not confirm pricing, capacity, or an order. Design files are not uploaded at this stage.</p><label class="ttc-hp">Leave blank<input id="ttc-site" tabindex="-1" autocomplete="off"></label><button type="button" class="btn btn-dark" id="submitTTC">Send Inquiry Securely ↗</button><p id="ttcStatus" role="status" aria-live="polite"></p>';
+block.innerHTML='<h3>Submit your project inquiry</h3><p>A reference number confirms database receipt; it does not confirm pricing, capacity, or an order. Design files are not uploaded at this stage.</p><label class="ttc-hp">Leave blank<input id="ttc-site" tabindex="-1" autocomplete="off"></label><div id="ttcTurnstile" aria-label="Human verification"></div><button type="button" class="btn btn-dark" id="submitTTC">Checking inquiry availability…</button><p id="ttcStatus" role="status" aria-live="polite"></p>';
 (panel.querySelector('#reviewPanel')||panel).insertAdjacentElement('afterend',block);
+const send=block.querySelector('#submitTTC');send.disabled=true;send.textContent='Checking inquiry availability…';
+void checkInquiryAvailability();
 if(!document.getElementById('ttcStyle')){const style=document.createElement('style');style.id='ttcStyle';style.textContent='.ttc-angle-set{display:flex;gap:8px;z-index:4}.ttc-angle-set button{background:#fffefa;border:1px solid #b5b8b0;padding:8px 13px;min-height:38px;border-radius:3px;font-weight:700}.ttc-angle-set button[aria-pressed=true]{background:#153c36;color:#fff}.ttc-submit{margin-top:22px;padding:25px;border:1px solid #d2dfd0;background:#f1f5ef}.ttc-submit h3{font:27px Georgia,serif;margin:0 0 12px}.ttc-hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}#ttcStatus{font-weight:700;margin:12px 0 0}';document.head.appendChild(style)}}
+
+async function checkInquiryAvailability(){
+ const btn=document.querySelector('#submitTTC'),out=document.querySelector('#ttcStatus');
+ if(!btn||!out)return;btn.disabled=true;
+ try{
+  const response=await fetch('/api/health',{cache:'no-store'});
+  if(!response.ok)throw Error('Health endpoint unavailable');
+  const data=await response.json();
+  if(!data.inquirySubmissionEnabled){
+   btn.textContent='Inquiry submission unavailable';
+   out.textContent='Online inquiry intake is currently paused. You can still review the showroom and prepare your project brief.';
+   return;
+  }
+  if(data.turnstileSiteKey){
+   const holder=document.getElementById('ttcTurnstile');
+   if(!holder)return;
+   if(!window.turnstile){
+    await new Promise((resolve,reject)=>{
+      const s=document.createElement('script');
+      s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;
+      s.onload=resolve;s.onerror=()=>reject(Error('Verification widget failed to load'));document.head.append(s);
+    });
+   }
+   if(!window.turnstile)throw Error('Verification widget unavailable');
+   window.turnstile.render(holder,{sitekey:data.turnstileSiteKey,callback:token=>{holder.dataset.token=token},'expired-callback':()=>{holder.dataset.token=''}});
+  }
+  if(!document.contains(btn))return;
+  out.textContent='';btn.textContent='Send Inquiry Securely ↗';btn.disabled=false;
+ }catch{
+  if(!document.contains(btn))return;
+  btn.disabled=true;btn.textContent='Inquiry submission unavailable';
+  out.textContent='Could not verify inquiry availability. Please try again later.';
+ }
+}
+
 const value=id=>document.getElementById('q-'+id)?.value?.trim()||'';
 let key;
 async function submit(){if(typeof validateQuote==='function'&&!validateQuote())return;
 const btn=document.querySelector('#submitTTC');const out=document.querySelector('#ttcStatus');if(!btn||!out)return;
-if(!key)key=crypto.randomUUID();const payload={organization:value('org'),sector:value('sector'),contactName:value('name'),email:value('email'),garmentType:value('type'),quantityBand:value('qty'),serviceType:value('service'),targetTimeline:value('timeline'),destination:value('destination'),details:value('note'),consent:document.querySelector('#q-consent')?.checked===true,website:document.querySelector('#ttc-site')?.value||'',idempotencyKey:key,items:(typeof cart!=='undefined'?cart:[]).map(x=>({sku:map[x.id]||x.id,color:x.color,quantity:null}))};
+if(!key)key=crypto.randomUUID();const payload={organization:value('org'),sector:value('sector'),contactName:value('name'),email:value('email'),garmentType:value('type'),quantityBand:value('qty'),serviceType:value('service'),targetTimeline:value('timeline'),destination:value('destination'),details:value('note'),consent:document.querySelector('#q-consent')?.checked===true,website:document.querySelector('#ttc-site')?.value||'',turnstileToken:document.querySelector('#ttcTurnstile')?.dataset.token||'',idempotencyKey:key,items:(typeof cart!=='undefined'?cart:[]).map(x=>({sku:map[x.id]||x.id,color:x.color,quantity:null}))};
 btn.disabled=true;btn.textContent='Sending securely…';out.textContent='';
-try{const res=await fetch('/api/v1/inquiries',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(!res.ok)throw new Error((data.details||[]).join(' ')||data.error||'Unable to submit');out.style.color='#23614a';out.textContent='Received and stored · '+data.reference+' — save this reference for follow-up.';btn.textContent='Inquiry Received ✓';key=null;}catch(e){out.style.color='#a43f2e';out.textContent='Not submitted: '+(e.message||e)+'. Your draft has not been lost.';btn.disabled=false;btn.textContent='Retry Inquiry ↗'}}
+try{const res=await fetch('/api/v1/inquiries',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const data=await res.json();if(!res.ok)throw new Error((data.details||[]).join(' ')||data.error||'Unable to submit');out.style.color='#23614a';out.textContent='Received and stored · '+data.reference+' — save this reference for follow-up. ';const track=document.createElement('a');track.href='/track.html?reference='+encodeURIComponent(data.reference);track.textContent='Check status';track.style.textDecoration='underline';out.append(track);btn.textContent='Inquiry Received ✓';key=null;}catch(e){out.style.color='#a43f2e';out.textContent='Not submitted: '+(e.message||e)+'. Your draft has not been lost.';if(window.turnstile&&document.getElementById('ttcTurnstile')){try{window.turnstile.reset();document.getElementById('ttcTurnstile').dataset.token=''}catch{}}btn.disabled=false;btn.textContent='Retry Inquiry ↗'}}
 document.addEventListener('click',e=>{const angle=e.target.closest('[data-ttc-angle]');if(angle){const product=products.find(p=>p.id===modalPid);const variant=product?.variants?.find(v=>v.color===modalColor);const media=variant?.views?.[angle.dataset.ttcAngle];const image=document.querySelector('#modalVisual img.product-photograph');if(media&&image){image.src=media.url;image.alt=media.alt||product.name+' '+angle.dataset.ttcAngle+' view';document.querySelectorAll('[data-ttc-angle]').forEach(b=>b.setAttribute('aria-pressed',String(b===angle)))}return;}if(e.target.closest('#submitTTC'))submit()});
 const app=document.querySelector('#app');if(app){new MutationObserver(()=>{if(location.hash.startsWith('#/quote'))attach()}).observe(app,{childList:true})}
 if(location.hash.startsWith('#/quote'))attach();

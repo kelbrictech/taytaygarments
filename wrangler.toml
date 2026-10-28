@@ -11,5 +11,6 @@ not_found_handling = "single-page-application"
 run_worker_first = ["/api/*"]
 [vars]
 SITE_STATUS = "development"
+INQUIRIES_ENABLED = "false"
 SITE_NAME = "Taytay Textile Co."
 # Put DATABASE_URL, ADMIN_API_TOKEN, IP_HASH_PEPPER in Cloudflare secrets, never in Git.

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#153c36">
+<title>Track a Project Inquiry | Taytay Textile Co.</title>
+<style>
+:root{font:16px/1.55 system-ui,Arial,sans-serif;color:#16332d;background:#f7f5f0}
+*{box-sizing:border-box}body{margin:0}header{padding:22px max(20px,calc((100% - 760px)/2));background:#153c36;color:white}
+header a{color:#fff;font-weight:700;text-decoration:none}main{width:min(100% - 32px,700px);margin:42px auto 80px}
+h1{font:clamp(34px,7vw,52px)/1.1 Georgia,serif;margin:0 0 14px}p{color:#53645f}
+.panel{padding:clamp(20px,5vw,36px);background:#fff;border:1px solid #d8ded8;border-radius:9px}
+label{display:block;font-size:13px;font-weight:700;margin:20px 0 7px}
+input{width:100%;font:inherit;padding:13px;border:1px solid #9caea5;border-radius:5px;min-height:49px}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #b57e53;outline-offset:3px}
+button{font:inherit;margin-top:22px;background:#153c36;color:#fff;border:0;border-radius:5px;padding:15px 20px;min-height:50px;cursor:pointer;width:100%;font-weight:700}
+button:disabled{opacity:.5;cursor:wait}.result{min-height:24px;margin-top:20px;white-space:pre-line;font-weight:600}
+.small{font-size:13px}
+</style>
+</head><body>
+<header><a href="/#/showroom">Taytay Textile Co.</a></header>
+<main><h1>Check inquiry status</h1><p>Use the reference from your submission and the email you entered. A received inquiry is not a confirmed order or quotation.</p>
+<section class="panel"><form id="lookup">
+<label for="reference">Inquiry reference</label><input id="reference" placeholder="TTC-2026-XXXXXXXX" pattern="TTC-[0-9]{4}-[A-F0-9]{8}" required maxlength="17" autocomplete="off">
+<label for="email">Email used for the inquiry</label><input id="email" type="email" maxlength="150" required autocomplete="email">
+<button id="submit" type="submit">Check status</button></form><div class="result" id="result" role="status" aria-live="polite"></div></section>
+<p class="small">For privacy, status checks return only a reference, workflow status and submission date. No contact information or quotation amounts are displayed.</p>
+</main>
+<script>
+const ref=document.getElementById('reference'),email=document.getElementById('email'),result=document.getElementById('result'),btn=document.getElementById('submit');
+ref.value=new URLSearchParams(location.search).get('reference')||'';
+document.getElementById('lookup').addEventListener('submit',async e=>{
+ e.preventDefault();const id=ref.value.trim().toUpperCase();if(!/^TTC-\d{4}-[A-F0-9]{8}$/.test(id)){result.textContent='Please enter a valid inquiry reference.';return}
+ btn.disabled=true;result.textContent='Checking…';
+ try{const r=await fetch('/api/v1/inquiries/'+encodeURIComponent(id)+'/status?email='+encodeURIComponent(email.value.trim()),{cache:'no-store'});
+ const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to retrieve status');
+ result.textContent='Reference: '+d.inquiry.reference+'\nStatus: '+d.inquiry.status+'\nSubmitted: '+new Date(d.inquiry.created_at).toLocaleString();
+ }catch(e){result.textContent=e.message||'Could not check the inquiry.'}finally{btn.disabled=false}
+});
+</script></body></html>

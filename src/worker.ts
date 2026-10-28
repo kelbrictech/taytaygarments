@@ -1,12 +1,18 @@
 import {neon} from '@neondatabase/serverless';
 import {normalizeInquiry,validateInquiry,makeReference} from './domain';
-interface Env{DATABASE_URL?:string;ADMIN_API_TOKEN?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;SITE_STATUS?:string;ASSETS:Fetcher}
+interface Env{DATABASE_URL?:string;ADMIN_API_TOKEN?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;TURNSTILE_SITE_KEY?:string;INQUIRIES_ENABLED?:string;SITE_STATUS?:string;ASSETS:Fetcher}
 const json=(body:unknown,status=200,extra:Record<string,string>={})=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',...extra}});
 function authorize(r:Request,e:Env){const token=e.ADMIN_API_TOKEN||'',supplied=(r.headers.get('authorization')||'').replace(/^Bearer\s+/i,'');if(token.length<32||supplied.length!==token.length)return false;let n=0;for(let i=0;i<token.length;i++)n|=token.charCodeAt(i)^supplied.charCodeAt(i);return n===0}
 async function fingerprint(r:Request,pepper:string){const ip=r.headers.get('cf-connecting-ip');if(!ip||!pepper)return null;const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pepper+'|'+ip));return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('')}
 async function challenge(token:string,r:Request,secret:string){if(!secret)return true;if(!token)return false;const body=new FormData();body.set('secret',secret);body.set('response',token);const ip=r.headers.get('cf-connecting-ip');if(ip)body.set('remoteip',ip);try{const res=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body});const data=await res.json() as {success?:boolean};return Boolean(data.success)}catch{return false}}
 async function api(r:Request,e:Env):Promise<Response>{const path=new URL(r.url).pathname;
-if(path==='/api/health'&&r.method==='GET')return json({ok:true,service:'taytay-textile-co',databaseConfigured:Boolean(e.DATABASE_URL),status:e.SITE_STATUS||'development'});
+if(path==='/api/health'&&r.method==='GET'){
+const dbReady=Boolean(e.DATABASE_URL),guardReady=Boolean(e.IP_HASH_PEPPER);
+const turnstileReady=Boolean(e.TURNSTILE_SECRET&&e.TURNSTILE_SITE_KEY);
+const prod=(e.SITE_STATUS||'development')==='production';
+return json({ok:true,service:'taytay-textile-co',databaseConfigured:dbReady,
+inquiriesConfigured:dbReady&&guardReady,inquirySubmissionEnabled:e.INQUIRIES_ENABLED==='true'&&dbReady&&guardReady&&(!prod||turnstileReady),
+turnstileSiteKey:turnstileReady?e.TURNSTILE_SITE_KEY:null,status:e.SITE_STATUS||'development'});}
 if(!e.DATABASE_URL)return json({error:'Database not configured.'},503);
 const db=neon(e.DATABASE_URL);
 if(path==='/api/v1/products'&&r.method==='GET'){
@@ -18,6 +24,8 @@ FROM ttc_product_variants v WHERE v.product_id=p.id AND v.available),'[]'::json)
 FROM ttc_products p WHERE p.published ORDER BY p.display_rank,p.name`;
 return json({products:rows,conceptsOnly:rows.every(x=>x.concept===true)},200,{'cache-control':'public,max-age=60'});}
 if(path==='/api/v1/inquiries'&&r.method==='POST'){
+if(e.INQUIRIES_ENABLED!=='true')return json({error:'Inquiry submission is temporarily unavailable.'},503,{'retry-after':'3600'});
+if((e.SITE_STATUS||'development')==='production'&&(!e.TURNSTILE_SECRET||!e.TURNSTILE_SITE_KEY))return json({error:'Inquiry protection has not been configured.'},503);
 if(r.headers.get('content-type')?.split(';')[0]!=='application/json')return json({error:'JSON required.'},415);
 if(Number(r.headers.get('content-length')||0)>32768)return json({error:'Request too large.'},413);
 let input:unknown;try{const raw=await r.text();if(raw.length>32768)return json({error:'Request too large.'},413);input=JSON.parse(raw)}catch{return json({error:'Invalid JSON.'},400)}
@@ -37,6 +45,13 @@ SELECT created.id,entry.value->>'sku',entry.value->>'color',NULLIF(entry.value->
 FROM created CROSS JOIN LATERAL jsonb_array_elements(${itemsJson}::jsonb) AS entry(value)`;
 }catch(err){console.error('RFQ insertion error:',String(err).slice(0,150));return json({error:'Unable to persist inquiry; please retry.'},503)}
 return json({received:true,reference,message:'Inquiry received; not an order or confirmed quotation.'},201)}
+const trackMatch=path.match(/^\/api\/v1\/inquiries\/(TTC-\d{4}-[A-F0-9]{8})\/status$/);
+if(trackMatch&&r.method==='GET'){
+const email=(new URL(r.url).searchParams.get('email')||'').trim().toLowerCase();
+if(email.length>150||!(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)))return json({error:'A valid inquiry email is required.'},400);
+const rows=await db`SELECT reference,status,created_at FROM ttc_inquiries WHERE reference=${trackMatch[1]} AND lower(email)=${email} LIMIT 1`;
+return rows.length?json({inquiry:rows[0]}):json({error:'No matching inquiry found.'},404);
+}
 if(path==='/api/v1/admin/products'&&r.method==='GET'){
 if(!authorize(r,e))return json({error:'Unauthorized.'},401);
 return json({products:await db`SELECT p.sku,p.slug,p.name,p.category,p.subtitle,p.concept,p.published,p.display_rank,
