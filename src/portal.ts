@@ -129,6 +129,59 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
   const rows=await q('UPDATE ttc_content_pages SET title=$1,body=$2,published=$3,updated_by=$4,updated_at=now() WHERE slug=$5 RETURNING slug,title,body,published,updated_at',[title,txt,x.published,s.user_id,content[1]]);
   if(!rows.length)return reply({error:'Page not found.'},404);await audit('content-publish','page',content[1]);return reply({page:rows[0]});
  }
+
+ if(path==='/api/v2/suppliers'&&method==='GET'){
+  if(!access(s,['staff','admin']))return denied();
+  return reply({suppliers:await q('SELECT code,name,region,contact_email,demo,active FROM ttc_suppliers ORDER BY code')});
+ }
+ if(path==='/api/v2/suppliers'&&method==='POST'){
+  if(s.role!=='admin')return denied();let x;try{x=await body(r)}catch{return reply({error:'Invalid supplier request.'},400)}
+  const code=clean(x.code,65).toUpperCase(),name=clean(x.name,140),region=clean(x.region,100),email=clean(x.email).toLowerCase();
+  if(!/^[A-Z0-9-]{5,65}$/.test(code)||name.length<3||region.length<2||(email&&!emailOk(email)))return reply({error:'Invalid supplier fields.'},422);
+  try{const rows=await q('INSERT INTO ttc_suppliers(code,name,region,contact_email,demo) VALUES($1,$2,$3,$4,true) RETURNING code,name,region',[code,name,region,email]);await audit('supplier-create','supplier',code);return reply({supplier:rows[0]},201)}
+  catch{return reply({error:'Supplier code already exists or data could not be saved.'},409)}
+ }
+ if(path==='/api/v2/purchase-orders'&&method==='GET'){
+  if(!access(s,['staff','admin']))return denied();
+  const rows=await q("SELECT po.po_no,po.status,po.expected_date,po.notes,po.demo,s.name AS supplier,s.code AS supplier_code,COALESCE((SELECT json_agg(json_build_object('sku',i.sku,'ordered',l.ordered_qty,'received',l.received_qty)) FROM ttc_purchase_lines l JOIN ttc_stock_items i ON i.id=l.stock_id WHERE l.po_id=po.id),'[]'::json) AS lines FROM ttc_purchase_orders po JOIN ttc_suppliers s ON s.id=po.supplier_id ORDER BY po.created_at DESC LIMIT 100");
+  return reply({purchaseOrders:rows});
+ }
+ if(path==='/api/v2/purchase-orders'&&method==='POST'){
+  if(!access(s,['staff','admin']))return denied();let x;try{x=await body(r)}catch{return reply({error:'Invalid purchase order.'},400)}
+  const supplier=clean(x.supplierCode,65),sku=clean(x.sku,80),quantity=Number(x.quantity),notes=clean(x.notes,400),date=clean(x.expectedDate,10);
+  if(!/^[A-Z0-9-]{5,65}$/.test(supplier)||!/^[A-Z0-9-]{4,80}$/.test(sku)||!Number.isSafeInteger(quantity)||quantity<1||quantity>1000000||(date&&!/^\d{4}-\d{2}-\d{2}$/.test(date)))return reply({error:'Invalid PO data.'},422);
+  const number='TTC-PO-'+new Date().getUTCFullYear()+'-'+random(4).toUpperCase();
+  const rows=await q("WITH sup AS (SELECT id FROM ttc_suppliers WHERE code=$1 AND active=true), itm AS(SELECT id FROM ttc_stock_items WHERE sku=$2), created AS(INSERT INTO ttc_purchase_orders(po_no,supplier_id,created_by,status,expected_date,notes,demo) SELECT $3,sup.id,$4,'draft',$5::date,$6,true FROM sup WHERE EXISTS(SELECT 1 FROM itm) RETURNING id,po_no,status), lines AS(INSERT INTO ttc_purchase_lines(po_id,stock_id,ordered_qty) SELECT created.id,itm.id,$7 FROM created CROSS JOIN itm RETURNING id) SELECT created.po_no,created.status FROM created JOIN lines ON true",[supplier,sku,number,s.user_id,date||null,notes,quantity]);
+  if(!rows.length)return reply({error:'Supplier or stock item not found.'},404);
+  await audit('purchase-create','purchase',number);return reply({purchaseOrder:rows[0]},201);
+ }
+ const poStatus=path.match(/^\/api\/v2\/purchase-orders\/(TTC-PO-[A-Z0-9-]+)\/status$/);
+ if(poStatus&&method==='PATCH'){
+  if(s.role!=='admin')return denied();let x;try{x=await body(r)}catch{return reply({error:'Invalid status request.'},400)}
+  const status=clean(x.status,20);
+  if(!['issued','cancelled'].includes(status))return reply({error:'Invalid transition.'},422);
+  const rows=await q("UPDATE ttc_purchase_orders SET status=$1,updated_at=now() WHERE po_no=$2 AND status='draft' RETURNING po_no,status",[status,poStatus[1]]);
+  if(!rows.length)return reply({error:'Only draft POs can be issued or cancelled.'},409);
+  await audit('purchase:'+status,'purchase',poStatus[1]);return reply({purchaseOrder:rows[0]});
+ }
+ const receiving=path.match(/^\/api\/v2\/purchase-orders\/(TTC-PO-[A-Z0-9-]+)\/receive$/);
+ if(receiving&&method==='POST'){
+  if(!access(s,['staff','admin']))return denied();let x;try{x=await body(r)}catch{return reply({error:'Invalid goods receipt.'},400)}
+  const sku=clean(x.sku,80),qty=Number(x.quantity),note=clean(x.note,400);
+  if(!/^[A-Z0-9-]{4,80}$/.test(sku)||!Number.isSafeInteger(qty)||qty<1||qty>1000000)return reply({error:'Invalid receipt quantity or SKU.'},422);
+  // Single-statement receiving locks the order line and atomically increments both the received and on-hand balances.
+  const rows=await q("WITH chosen AS (SELECT l.id FROM ttc_purchase_lines l JOIN ttc_purchase_orders p ON p.id=l.po_id JOIN ttc_stock_items i ON i.id=l.stock_id WHERE p.po_no=$1 AND i.sku=$2 AND p.status IN ('issued','partial') FOR UPDATE OF l), updated_line AS (UPDATE ttc_purchase_lines SET received_qty=received_qty+$3 WHERE id=(SELECT id FROM chosen) AND received_qty+$3<=ordered_qty RETURNING stock_id), changed_stock AS (UPDATE ttc_stock_items SET on_hand=on_hand+$3,updated_at=now() WHERE id=(SELECT stock_id FROM updated_line) RETURNING id,sku,on_hand), ledger AS (INSERT INTO ttc_stock_movements(stock_id,actor_id,delta,reason,note) SELECT id,$4,$3,'receipt',$5 FROM changed_stock RETURNING id) SELECT changed_stock.sku,changed_stock.on_hand FROM changed_stock JOIN ledger ON true",[receiving[1],sku,qty,s.user_id,'PO '+receiving[1]+' / '+note]);
+  if(!rows.length)return reply({error:'Cannot receive: PO not issued, SKU missing or quantity exceeds open balance.'},409);
+  await q("UPDATE ttc_purchase_orders SET status=CASE WHEN EXISTS(SELECT 1 FROM ttc_purchase_lines l WHERE l.po_id=ttc_purchase_orders.id AND l.received_qty<l.ordered_qty) THEN 'partial' ELSE 'received' END,updated_at=now() WHERE po_no=$1 AND status IN('issued','partial')",[receiving[1]]);
+  await audit('purchase-receipt','purchase',receiving[1]);return reply({receipt:rows[0]});
+ }
+ const timeline=path.match(/^\/api\/v2\/orders\/(TTC-[A-Z0-9-]+)\/events$/);
+ if(timeline&&method==='GET'){
+  if(!access(s,['customer','staff','admin']))return denied();
+  const rows=await q("SELECT o.order_no,o.status,o.description,o.demo,e.status AS event_status,e.note,e.created_at FROM ttc_orders o LEFT JOIN ttc_order_events e ON e.order_id=o.id WHERE o.order_no=$1 AND ($2::boolean=true OR o.customer_id=$3::uuid) ORDER BY e.created_at ASC",[timeline[1],access(s,['staff','admin']),s.user_id]);
+  if(!rows.length)return reply({error:'Order not found.'},404);
+  return reply({order:{order_no:rows[0].order_no,status:rows[0].status,description:rows[0].description,demo:rows[0].demo},events:rows.filter(x=>x.event_status).map(x=>({status:x.event_status,note:x.note,created_at:x.created_at}))});
+ }
  if(path==='/api/v2/audit'&&method==='GET'){
   if(s.role!=='admin')return denied();return reply({events:await q('SELECT a.action,a.entity,a.entity_key,a.created_at,u.full_name AS actor FROM ttc_audit_log a LEFT JOIN ttc_users u ON u.id=a.actor_id ORDER BY a.created_at DESC LIMIT 100')});
  }
