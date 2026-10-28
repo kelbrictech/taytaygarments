@@ -25,6 +25,8 @@ const q=async(sql,params=[])=>{
 globalThis.__testNeon=()=>({query:q});
 let source=readFileSync(new URL('src/portal.ts',root),'utf8');
 source=source.replace("import {neon} from '@neondatabase/serverless';","const neon=globalThis.__testNeon;");
+source=source.replace("import {qmsApi} from './qms';","const qmsApi=globalThis.__testQmsApi;");
+globalThis.__testQmsApi=async()=>new Response(JSON.stringify({error:'QMS stub in portal security suite'}),{status:404,headers:{'content-type':'application/json'}});
 const transpiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
 const portal=(await import('data:text/javascript;base64,'+Buffer.from(transpiled).toString('base64'))).portalApi;
 const env={DATABASE_URL:'postgresql://fake-host',IP_HASH_PEPPER:'test-pepper'};

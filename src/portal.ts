@@ -1,4 +1,5 @@
 import {neon} from '@neondatabase/serverless';
+import {qmsApi} from './qms';
 type Env={DATABASE_URL?:string;IP_HASH_PEPPER?:string};
 type S={token_hash:string;csrf_token:string;user_id:string;role:string;email:string;full_name:string;approval_status:string;demo:boolean};
 const te=new TextEncoder();
@@ -65,6 +66,7 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
  if(!s)return denied(401);
  if(['POST','PUT','PATCH','DELETE'].includes(method)&&(!safeOrigin(r)||r.headers.get('x-csrf-token')!==s.csrf_token))return reply({error:'CSRF verification failed.'},403);
  const audit=(action:string,entity:string,key:string)=>q('INSERT INTO ttc_audit_log(actor_id,action,entity,entity_key) VALUES($1,$2,$3,$4)',[s!.user_id,action,entity,key]);
+ if(path.startsWith('/api/v2/qms/'))return qmsApi(r,{session:s,query:q,audit});
  if(path==='/api/v2/auth/logout'&&method==='POST'){await q('DELETE FROM ttc_sessions WHERE token_hash=$1',[s.token_hash]);return reply({signedOut:true},200,{'set-cookie':setCookie('',0)})}
  if(path==='/api/v2/auth/password'&&method==='POST'){
   let x;try{x=await body(r)}catch{return reply({error:'Invalid request.'},400)}
@@ -93,8 +95,11 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
  if(os&&method==='PATCH'){
   if(!access(s,['staff','admin']))return denied();let x;try{x=await body(r)}catch{return reply({error:'Invalid request.'},400)}
   const status=clean(x.status,32),note=clean(x.note,400);if(!orderStates.includes(status))return reply({error:'Invalid order status.'},422);
-  const rows=await q("WITH changed AS (UPDATE ttc_orders SET status=$1,updated_at=now() WHERE order_no=$2 RETURNING id) INSERT INTO ttc_order_events(order_id,actor_id,status,note) SELECT id,$3,$1,$4 FROM changed RETURNING status",[status,os[1],s.user_id,note]);
-  if(!rows.length)return reply({error:'Order not found.'},404);await audit('status:'+status,'order',os[1]);return reply({order_no:os[1],status});
+  if(['dispatch','delivered'].includes(status)&&note.length<10)return reply({error:'Dispatch and delivery require a traceable release note.'},422);
+  // Evidence gate is enforced inside the order update. Last final-inspection verdict
+  // must be PASS for the same order and demo/live environment, avoiding stale releases.
+  const rows=await q("WITH changed AS (UPDATE ttc_orders o SET status=$1,updated_at=now() WHERE order_no=$2 AND ($1 NOT IN ('dispatch','delivered') OR EXISTS (SELECT 1 FROM ttc_qms_records i WHERE i.id=(SELECT newest.id FROM ttc_qms_records newest WHERE newest.order_no=o.order_no AND newest.kind='final_inspection' AND newest.demo=o.demo ORDER BY newest.created_at DESC,newest.id DESC LIMIT 1) AND i.result='pass' AND length(i.evidence_ref)>=6)) RETURNING id), event AS (INSERT INTO ttc_order_events(order_id,actor_id,status,note) SELECT id,$3,$1,$4 FROM changed RETURNING status) SELECT status FROM event",[status,os[1],s.user_id,note]);
+  if(!rows.length)return reply({error:'Order not found or dispatch blocked. Record a passing final inspection linked to this order, with traceable evidence, before release.'},409);await audit('status:'+status,'order',os[1]);return reply({order_no:os[1],status});
  }
  if(path==='/api/v2/stock'&&method==='GET'){
   if(!access(s,['staff','admin']))return denied();
