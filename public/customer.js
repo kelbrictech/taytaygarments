@@ -45,21 +45,20 @@ async function loadOrders(){
  }
 }
 async function init(){
- try{
-  const data=await api('/api/v2/auth/me');account=data.user;
-  if(!showSignedIn())return;await loadOrders();
- }catch(err){
-  showSignedOut();
-  if(!String(err.message).includes('Sign in required'))feedback(err.message,true);
- }
+ let data;
+ try{data=await api('/api/v2/auth/me')}
+ catch(err){showSignedOut();if(!String(err.message).includes('Sign in required'))feedback(err.message,true);return}
+ account=data.user;
+ if(!showSignedIn())return;
+ try{await loadOrders()}catch(err){feedback('Your account is signed in, but orders could not be loaded: '+err.message,true)}
 }
 $('#customerLogin').addEventListener('submit',async event=>{
- event.preventDefault();clearFeedback();const btn=$('#loginSubmit');btn.disabled=true;
- const values=Object.fromEntries(new FormData(event.currentTarget).entries());
+ event.preventDefault();clearFeedback();const form=event.currentTarget,btn=$('#loginSubmit');btn.disabled=true;
+ const values=Object.fromEntries(new FormData(form).entries());
  try{
   const data=await api('/api/v2/auth/login','POST',{email:values.email,password:values.password});
   account=data.user;
-  event.currentTarget.reset();
+  form.reset();
   if(!showSignedIn())return;
   await loadOrders();feedback('You are signed in to your customer account.');
  }catch(err){feedback(err.message,true)}finally{btn.disabled=false}
