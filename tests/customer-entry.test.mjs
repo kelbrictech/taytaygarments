@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const root=new URL('../',import.meta.url);
 const read=path=>readFileSync(new URL(path,root),'utf8');
 const index=read('public/index.html');
-const customer=read('public/customer');
+const customer=read('public/customer.html');
 const css=read('public/customer.css');
 const script=read('public/customer.js');
 const portal=read('public/portal.html');
