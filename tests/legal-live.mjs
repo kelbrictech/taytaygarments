@@ -11,7 +11,7 @@ let ready=false;
 for(let i=0;i<40;i++){
  try{
   const [home,privacy,rights]=await Promise.all([fetch(origin+'/',{cache:'no-store'}),fetch(origin+'/privacy',{cache:'no-store'}),fetch(origin+'/privacy-request',{cache:'no-store'})]);
-  if(home.ok&&privacy.ok&&rights.ok&&(await home.text()).includes('legal-links')&&(await privacy.text()).includes('Operator review required')&&(await rights.text()).includes('privacy-form')){ready=true;break}
+  if(home.ok&&privacy.ok&&rights.ok&&(await home.text()).includes('legal-links')&&(await privacy.text()).includes('Operator review required')&&(await rights.text()).includes('id="rights-turnstile" role="group"')){ready=true;break}
  }catch{}
  await new Promise(res=>setTimeout(res,4000));
 }
