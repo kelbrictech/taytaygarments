@@ -67,6 +67,24 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
  if(['POST','PUT','PATCH','DELETE'].includes(method)&&(!safeOrigin(r)||r.headers.get('x-csrf-token')!==s.csrf_token))return reply({error:'CSRF verification failed.'},403);
  const audit=(action:string,entity:string,key:string)=>q('INSERT INTO ttc_audit_log(actor_id,action,entity,entity_key) VALUES($1,$2,$3,$4)',[s!.user_id,action,entity,key]);
  if(path.startsWith('/api/v2/qms/'))return qmsApi(r,{session:s,query:q,audit});
+ if(path==='/api/v2/privacy/requests'&&method==='GET'){
+  if(s.role!=='admin')return denied();
+  const rows=await q('SELECT reference,email,kind,details,status,review_note,identity_verified_at,resolved_at,created_at,updated_at FROM ttc_privacy_requests ORDER BY CASE WHEN status IN (\'resolved\',\'declined\') THEN 1 ELSE 0 END,created_at DESC LIMIT 150');
+  return reply({requests:rows,notice:'Private personal-data records. Identity verification is required. A recorded resolution does not automatically erase data.'});
+ }
+ const privacyReview=path.match(/^\/api\/v2\/privacy\/requests\/(PRIV-\d{4}-[A-F0-9]{12})\/review$/);
+ if(privacyReview&&method==='PATCH'){
+  if(s.role!=='admin')return denied();
+  let input;try{input=await body(r)}catch{return reply({error:'Invalid review request.'},400)}
+  const next=clean(input.status,30),note=clean(input.note,1200);
+  if(!['reviewing','identity_verification','verified','resolved','declined'].includes(next)||note.length<20)
+    return reply({error:'Choose a valid review step and provide at least 20 characters of recorded reasoning.'},422);
+  const rows=await q("WITH changed AS (UPDATE ttc_privacy_requests SET status=$1,review_note=$2,updated_at=now(),identity_verified_at=CASE WHEN $1='verified' THEN now() ELSE identity_verified_at END,resolved_at=CASE WHEN $1 IN ('resolved','declined') THEN now() ELSE NULL END,resolved_by=CASE WHEN $1 IN ('resolved','declined') THEN $3 ELSE NULL END WHERE reference=$4 AND ((status='received' AND $1 IN ('reviewing','identity_verification')) OR (status='reviewing' AND $1 IN ('identity_verification','verified')) OR (status='identity_verification' AND $1='verified') OR (status='verified' AND $1 IN ('resolved','declined') AND identity_verified_at IS NOT NULL)) RETURNING id,reference,status), history AS (INSERT INTO ttc_privacy_request_events(request_id,actor_id,status,note) SELECT id,$3,status,$2 FROM changed RETURNING id) SELECT changed.reference,changed.status FROM changed JOIN history ON true",[next,note,s.user_id,privacyReview[1]]);
+  if(!rows.length)return reply({error:'Request not found or transition blocked. Verify identity before resolution; do not mark work done without evidence.'},409);
+  await audit('privacy-rights:'+next,'privacy-request',privacyReview[1]);
+  return reply({request:rows[0],actionCompleted:false,notice:'Workflow status recorded. Confirm the requested data action separately; this API does not delete data.'});
+ }
+
  if(path==='/api/v2/auth/logout'&&method==='POST'){await q('DELETE FROM ttc_sessions WHERE token_hash=$1',[s.token_hash]);return reply({signedOut:true},200,{'set-cookie':setCookie('',0)})}
  if(path==='/api/v2/auth/password'&&method==='POST'){
   let x;try{x=await body(r)}catch{return reply({error:'Invalid request.'},400)}
