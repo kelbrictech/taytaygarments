@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="/qms-workspace.css">
 <script src="/qms-workspace.js" defer></script>
 <script type="module" src="/operations.js"></script>
+<script src="/privacy-controls.js" defer></script>
+<style>.account-policies a{color:#e1efe5}.account-policies button{background:transparent;color:#fff;border:1px solid #a9c2ad;min-height:36px;padding:6px 10px}</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -26,7 +28,7 @@
 <label for="staffName">Full name</label><input id="staffName" name="name" required minlength="3" autocomplete="name">
 <label for="staffEmail">Work email</label><input id="staffEmail" type="email" name="email" required autocomplete="email">
 <label for="staffPassword">Create a password (15+ characters)</label><input id="staffPassword" type="password" name="password" minlength="15" maxlength="128" autocomplete="new-password" required>
-<label class="check"><input name="consent" type="checkbox" required> I consent to this account request being processed for staff access review.</label>
+<label class="check"><input name="consent" type="checkbox" required> I acknowledge the <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Notice</a> and consent to processing this staff access request for administrative review.</label>
 <input class="hidden" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 <button class="outline" type="submit">Request approval</button></form></details>
 <p class="help">For customers, use the separate <a href="/customer">My Orders</a> workspace. Demonstration records and listings do not represent real orders or vacancies.</p></article></section>
@@ -41,5 +43,5 @@
 <button class="outline" type="submit">Change password and sign out</button></form></details></section>
 </section>
 </main>
-<footer><div class="frame"><span>TAYTAY TEXTILE CO. · TAYTAY, RIZAL</span><span>Development demonstration · Fictional test records</span></div></footer>
+<footer><div class="frame"><span>TAYTAY TEXTILE CO. · TAYTAY, RIZAL</span><span>Development demonstration · Fictional test records</span><nav class="account-policies" aria-label="Policies"><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/returns">Returns</a> · <a href="/accessibility">Accessibility</a> · <a href="/privacy-request">Privacy rights</a> · <button type="button" data-cookie-settings>Cookie settings</button></nav></div></footer>
 </body></html>
