@@ -49,7 +49,7 @@ function privacyHtml(){
      ' · Request outcome: '+esc(r.resolved_at?'review recorded':'pending')+'</p>'+form+'</details>')+'</tr>';
  }).join('');
  return section('Privacy rights requests',active+' requiring action. Restricted to administrators. Submitting a request does not mean the data is already deleted.',
- '<div class="notice"><strong>Personal information · internal only.</strong> Independently verify the requester's identity. Record the actual data action and any applicable retention obligation before marking resolved. This dashboard does not run automated account erasure or send confirmation email.</div>'+
+ '<div class="notice"><strong>Personal information · internal only.</strong> Independently verify the requester’s identity. Record the actual data action and any applicable retention obligation before marking resolved. This dashboard does not run automated account erasure or send confirmation email.</div>'+
  (privacyQueue.length?table(['REFERENCE','REQUEST','STATUS','RECEIVED','REVIEW'],[html]):'<p class="empty">No privacy rights requests received.</p>'));
 }
 function ordersHtml(){const rows=orders.map(o=>'<tr>'+td('<strong>'+esc(o.order_no)+'</strong><span class="muted">'+(o.demo?'Sample order':'')+'</span>')+td(esc(o.description))+td(esc(o.quantity))+td(state(o.status)+'<button class="timeline-action" data-timeline="'+esc(o.order_no)+'" type="button">View timeline</button>')+td(o.delivery_target?esc(String(o.delivery_target).slice(0,10)):'—')+(['staff','admin'].includes(user.role)?td(esc(o.customer)):'' )+'</tr>');
