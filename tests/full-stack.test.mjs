@@ -83,7 +83,7 @@ test('legitimate data subject can record a rights request without automatic eras
  const r=await worker.fetch(req('/api/v1/privacy/requests',{method:'POST',headers:{'content-type':'application/json','cf-connecting-ip':'203.0.113.8'},body:JSON.stringify({email:'customer@example.com',type:'erasure',details:'Review my account before deleting personal information',acknowledged:true,noticeVersion:'2026-10-30',idempotencyKey:crypto.randomUUID()})}),env);
  assert.equal(r.status,201);
  const j=await r.json();assert.equal(j.actionCompleted,false);
- assert.match(j.reference,/^PRIV-20\\d{2}-[A-F0-9]{12}$/);
+ assert.match(j.reference,/^PRIV-20\d{2}-[A-F0-9]{12}$/);
  assert.ok(calls.some(x=>x.sql.includes('INSERT INTO ttc_privacy_requests')),'Ticket must persist to database');
  assert.ok(calls.some(x=>x.sql.includes('ip_fingerprint')),'Request must store anti-abuse fingerprint instead of raw IP');
 });
