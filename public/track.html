@@ -19,6 +19,7 @@ button{font:inherit;margin-top:22px;background:#153c36;color:#fff;border:0;borde
 button:disabled{opacity:.5;cursor:wait}.result{min-height:24px;margin-top:20px;white-space:pre-line;font-weight:600}
 .small{font-size:13px}
 </style>
+<script src="/privacy-controls.js" defer></script>
 </head><body>
 <header><a href="/#/showroom">Taytay Textile Co.</a> · <a href="/customer">Customer Account / My Orders</a></header>
 <main><h1>Check inquiry status</h1><p class="small">Have a customer account? <a href="/customer">Sign in to My Orders</a> for your assigned garment orders and milestones.</p><p>Use the reference from your submission and the email you entered. A received inquiry is not a confirmed order or quotation.</p>
@@ -27,7 +28,7 @@ button:disabled{opacity:.5;cursor:wait}.result{min-height:24px;margin-top:20px;w
 <label for="email">Email used for the inquiry</label><input id="email" type="email" maxlength="150" required autocomplete="email">
 <button id="submit" type="submit">Check status</button></form><div class="result" id="result" role="status" aria-live="polite"></div></section>
 <p class="small">For privacy, status checks return only a reference, workflow status and submission date. No contact information or quotation amounts are displayed.</p>
-</main>
+<nav aria-label="Policies" style="display:flex;flex-wrap:wrap;gap:13px;margin-top:30px;font-size:13px"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/returns">Returns</a><a href="/cookies">Cookie Policy</a><a href="/privacy-request">Privacy rights</a><button type="button" data-cookie-settings style="background:#fff;color:#153c36;width:auto;border:1px solid #a4bca9">Cookie settings</button></nav></main>
 <script>
 const ref=document.getElementById('reference'),email=document.getElementById('email'),result=document.getElementById('result'),btn=document.getElementById('submit');
 ref.value=new URLSearchParams(location.search).get('reference')||'';
