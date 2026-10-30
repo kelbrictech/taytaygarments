@@ -6,7 +6,7 @@ header{background:#143c34;color:#fff}.wrap{width:min(1100px,calc(100% - 34px));m
 .brand i{border:1px solid #c69b6b;display:grid;place-items:center;width:43px;height:43px;font:32px Georgia,serif;color:#d0a778;font-style:normal}
 .brand strong{display:block;letter-spacing:.12em;font-size:14px}.brand small{display:block;font-size:10px;letter-spacing:.12em;color:#cbded1}
 nav{display:flex;flex-wrap:wrap;gap:13px 20px}nav a{text-decoration:none;color:#dae9de;font-weight:700;font-size:12px}nav a[aria-current=page]{color:#f4d3a9;border-bottom:2px solid #f4d3a9}
-main{padding:50px 0 90px}.eyebrow{color:#ab7548;font-weight:850;font-size:11px;letter-spacing:.14em}
+main{padding:50px 0 90px}.eyebrow{color:#85502c;font-weight:850;font-size:11px;letter-spacing:.14em}
 h1,h2{font-family:Georgia,'Times New Roman',serif;font-weight:400;line-height:1.12;letter-spacing:-.035em}h1{font-size:clamp(38px,6vw,66px);max-width:870px;margin:13px 0 17px}h2{font-size:clamp(24px,3vw,34px);margin:0 0 13px}
 .lead{color:#526f60;max-width:790px;font-size:clamp(15px,1.6vw,18px)}.banner{background:#f3f0e5;border-left:4px solid #b58859;padding:17px 21px;margin:34px 0;color:#42584b}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 255px;gap:48px;align-items:start;margin-top:28px}
