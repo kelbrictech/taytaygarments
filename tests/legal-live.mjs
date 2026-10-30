@@ -46,7 +46,7 @@ try{
    const scan=await page.evaluate(async()=>await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}));
    const severe=scan.violations.filter(v=>['critical','serious'].includes(v.impact));
    reports.push({width,page:key,violations:scan.violations.map(x=>({id:x.id,impact:x.impact,count:x.nodes.length}))});
-   if(severe.length)throw Error(key+' severe accessibility findings '+JSON.stringify(severe.map(x=>({id:x.id,impact:x.impact,nodes:x.nodes.length}))));
+   if(severe.length)throw Error(key+' severe accessibility findings '+JSON.stringify(severe.map(x=>({id:x.id,impact:x.impact,nodes:x.nodes.map(n=>({target:n.target,html:n.html,summary:n.failureSummary}))}))));
    if(['privacy','returns','privacy-request'].includes(key))await page.screenshot({path:'artifacts/legal-audit/'+key+'-'+width+'.png'});
    console.log('LEGAL_PAGE_RESPONSIVE_AND_ACCESSIBILITY_PASS '+width+' '+key+' total_axe_findings='+scan.violations.length);
   }
