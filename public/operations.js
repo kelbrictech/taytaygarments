@@ -30,6 +30,7 @@ const table=(head,rows)=>'<div class="tablewrap"><table class="datatable"><thead
 const td=x=>'<td>'+x+'</td>';
 const section=(title,detail,content)=>'<section class="panel dash-panel"><div class="section-head"><div><h3>'+esc(title)+'</h3><p class="small">'+esc(detail)+'</p></div></div>'+content+'</section>';
 function privacyHtml(){
+ if(user.demo)return section('Privacy request administration','Live personal information is isolated from demonstration accounts.', '<div class="notice"><strong>Demo access restricted.</strong> This administrator login is marked as a demonstration. Real data-subject requests can only be inspected by a verified non-demo administrator. The operator must establish that account and the real privacy contact before commercial launch.</div>');
  const active=privacyQueue.filter(r=>!['resolved','declined'].includes(r.status)).length;
  const html=privacyQueue.map(r=>{
   const choices=r.status==='received'?['reviewing','identity_verification']:
