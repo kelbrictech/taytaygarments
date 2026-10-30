@@ -69,12 +69,13 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
  if(path.startsWith('/api/v2/qms/'))return qmsApi(r,{session:s,query:q,audit});
  if(path==='/api/v2/privacy/requests'&&method==='GET'){
   if(s.role!=='admin')return denied();
+  if(s.demo)return reply({requests:[],demoOnly:true,notice:'Real personal data is not accessible using demo administrator accounts.'});
   const rows=await q('SELECT reference,email,kind,details,status,review_note,identity_verified_at,resolved_at,created_at,updated_at FROM ttc_privacy_requests ORDER BY CASE WHEN status IN (\'resolved\',\'declined\') THEN 1 ELSE 0 END,created_at DESC LIMIT 150');
   return reply({requests:rows,notice:'Private personal-data records. Identity verification is required. A recorded resolution does not automatically erase data.'});
  }
  const privacyReview=path.match(/^\/api\/v2\/privacy\/requests\/(PRIV-\d{4}-[A-F0-9]{12})\/review$/);
  if(privacyReview&&method==='PATCH'){
-  if(s.role!=='admin')return denied();
+  if(s.role!=='admin'||s.demo)return denied();
   let input;try{input=await body(r)}catch{return reply({error:'Invalid review request.'},400)}
   const next=clean(input.status,30),note=clean(input.note,1200);
   if(!['reviewing','identity_verification','verified','resolved','declined'].includes(next)||note.length<20)
