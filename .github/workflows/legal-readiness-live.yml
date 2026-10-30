@@ -1,0 +1,41 @@
+name: Live legal pages, consent and accessibility audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/index.html'
+      - 'public/privacy*.html'
+      - 'public/privacy*.js'
+      - 'public/terms.html'
+      - 'public/returns.html'
+      - 'public/cookies.html'
+      - 'public/accessibility.html'
+      - 'public/image-credits.html'
+      - 'public/legal.css'
+      - 'public/portal.html'
+      - 'public/customer.html'
+      - 'public/track.html'
+      - 'src/worker.ts'
+      - 'tests/legal-live.mjs'
+      - '.github/workflows/legal-readiness-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-audit --no-fund playwright axe-core
+      - run: npx playwright install chromium
+      - name: Audit actual policy pages and privacy choices on mobile and desktop
+        run: node tests/legal-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: taytay-legal-accessibility-evidence
+          path: artifacts/legal-audit
