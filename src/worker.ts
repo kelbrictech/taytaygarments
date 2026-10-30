@@ -12,12 +12,58 @@ const dbReady=Boolean(e.DATABASE_URL),guardReady=Boolean(e.IP_HASH_PEPPER);
 const turnstileReady=Boolean(e.TURNSTILE_SECRET&&e.TURNSTILE_SITE_KEY);
 const prod=(e.SITE_STATUS||'development')==='production';
 return json({ok:true,service:'taytay-textile-co',databaseConfigured:dbReady,
-inquiriesConfigured:dbReady&&guardReady,inquirySubmissionEnabled:e.INQUIRIES_ENABLED==='true'&&dbReady&&guardReady&&(!prod||turnstileReady),
+inquiriesConfigured:dbReady&&guardReady,privacyRequestAvailable:dbReady&&guardReady,inquirySubmissionEnabled:e.INQUIRIES_ENABLED==='true'&&dbReady&&guardReady&&(!prod||turnstileReady),
 turnstileSiteKey:turnstileReady?e.TURNSTILE_SITE_KEY:null,status:e.SITE_STATUS||'development'});}
 if(path.startsWith('/api/v2/'))return portalApi(r,e);
 if(path.startsWith('/api/v1/admin/'))return json({error:'Legacy admin API retired. Sign in at /portal.html.'},410);
 if(!e.DATABASE_URL)return json({error:'Database not configured.'},503);
 const db=neon(e.DATABASE_URL);
+if(path==='/api/v1/privacy/requests'&&r.method==='POST'){
+ // Register a data-subject request; do not automatically access, release or erase records.
+ if(!e.IP_HASH_PEPPER)return json({error:'Request service unavailable.'},503);
+ const origin=r.headers.get('origin');
+ if(origin&&origin!==new URL(r.url).origin)return json({error:'Cross-origin request denied.'},403);
+ if(r.headers.get('content-type')?.split(';')[0]!=='application/json')return json({error:'JSON required.'},415);
+ if(Number(r.headers.get('content-length')||0)>8192)return json({error:'Request too large.'},413);
+ let input:Record<string,unknown>;
+ try{const raw=await r.text();if(raw.length>8192)throw Error('Size');const parsed=JSON.parse(raw);if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw Error('Input');input=parsed as Record<string,unknown>}
+ catch{return json({error:'Invalid JSON request.'},400)}
+ const email=typeof input.email==='string'?input.email.trim().toLowerCase():'';
+ const kind=typeof input.type==='string'?input.type.trim():'';
+ const details=typeof input.details==='string'?input.details.trim():'';
+ const idempotency=typeof input.idempotencyKey==='string'?input.idempotencyKey:'';
+ const token=typeof input.turnstileToken==='string'?input.turnstileToken:'';
+ const allowed=['access','correction','erasure','objection','withdrawal','portability','complaint'];
+ if(input.website)return json({error:'Request rejected.'},400);
+ if(input.acknowledged!==true||input.noticeVersion!=='2026-10-30')return json({error:'Please review and acknowledge the privacy notice.'},422);
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>150||!allowed.includes(kind)||details.length>1000)return json({error:'Invalid email, request type or details.'},422);
+ if(idempotency&&!/^[a-f0-9-]{36}$/i.test(idempotency))return json({error:'Invalid retry token.'},422);
+ if(e.TURNSTILE_SECRET&&!await challenge(token,r,e.TURNSTILE_SECRET))return json({error:'Security verification failed.'},403);
+ const fp=await fingerprint(r,e.IP_HASH_PEPPER);
+ if(!fp)return json({error:'Anti-abuse protection unavailable.'},503);
+ if(idempotency){
+  const prior=await db`SELECT reference,status FROM ttc_privacy_requests WHERE idempotency_key=${idempotency} AND email=${email}`;
+  if(prior.length)return json({received:true,reference:prior[0].reference,status:prior[0].status,actionCompleted:false});
+ }
+ const rate=await db`SELECT count(*)::int n FROM ttc_privacy_requests WHERE ip_fingerprint=${fp} AND created_at>now()-interval '1 hour'`;
+ if(Number(rate[0]?.n||0)>=3)return json({error:'Too many recent requests; use a verified alternative contact channel.'},429);
+ const sameEmail=await db`SELECT count(*)::int n FROM ttc_privacy_requests WHERE email=${email} AND created_at>now()-interval '24 hours'`;
+ if(Number(sameEmail[0]?.n||0)>=5)return json({error:'Too many recent requests for this email.'},429);
+ const reference='PRIV-'+new Date().getUTCFullYear()+'-'+Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+ const key=idempotency||null;
+ try{
+  const saved=await db`WITH created AS (
+   INSERT INTO ttc_privacy_requests(reference,email,kind,details,idempotency_key,ip_fingerprint,notice_version)
+   VALUES (${reference},${email},${kind},${details},${key},${fp},'2026-10-30') RETURNING id,reference,status
+  ), history AS (
+   INSERT INTO ttc_privacy_request_events(request_id,actor_id,status,note)
+   SELECT id,NULL,'received','Public submission; independent identity verification needed.' FROM created RETURNING id
+  ) SELECT reference,status FROM created`;
+  if(!saved.length)return json({error:'Unable to record request.'},503);
+  return json({received:true,reference:saved[0].reference,status:saved[0].status,actionCompleted:false,
+   notice:'Request recorded. Independent identity and legal-retention review precede any action.'},201);
+ }catch{return json({error:'Unable to store request. Try again.'},503)}
+}
 if(path==='/api/v1/products'&&r.method==='GET'){
 const rows=await db`SELECT p.sku,p.slug,p.name,p.category,p.subtitle,p.fabric,p.finish,p.applications,p.concept,
 COALESCE((SELECT json_agg(json_build_object('color',v.color_slug,'label',v.color_label,'hex',v.color_hex,'default',v.default_color,'views',
