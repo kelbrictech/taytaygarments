@@ -60,9 +60,9 @@ test('invalid inquiry rejects before any insert',async()=>{
  assert.equal(r.status,422);assert.equal(calls.length,0);
 });
 test('reference and email allow limited status lookup',async()=>{
- const good=await worker.fetch(req('/api/v1/inquiries/TTC-2026-12345678/status?email=buyer%40example.com'),env);
+ const good=await worker.fetch(req('/api/v1/inquiries/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({reference:'TTC-2026-12345678',email:'buyer@example.com'})}),env);
  assert.equal(good.status,200);const j=await good.json();assert.equal(j.inquiry.status,'reviewing');assert.equal(j.inquiry.email,undefined);
- const wrong=await worker.fetch(req('/api/v1/inquiries/TTC-2026-12345678/status?email=wrong%40example.com'),env);
+ const wrong=await worker.fetch(req('/api/v1/inquiries/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({reference:'TTC-2026-12345678',email:'wrong@example.com'})}),env);
  assert.equal(wrong.status,404);
 });
 test('retired admin API cannot bypass staff and administrator sessions',async()=>{
@@ -92,4 +92,9 @@ test('privacy service readiness depends on database and anti-abuse secret',async
  assert.equal(j.privacyRequestAvailable,true);
  const r=await worker.fetch(req('/api/health'),{...env,IP_HASH_PEPPER:undefined});
  assert.equal((await r.json()).privacyRequestAvailable,false);
+});
+
+test('legacy GET status lookup no longer accepts email in querystring',async()=>{
+ const r=await worker.fetch(req('/api/v1/inquiries/TTC-2026-12345678/status?email=buyer%40example.com'),env);
+ assert.equal(r.status,410);
 });
