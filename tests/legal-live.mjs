@@ -24,6 +24,11 @@ try{
   await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:45000});
   await page.locator('.legal-links a[href="/privacy"]').waitFor({state:'visible',timeout:25000});
   if(!(await page.locator('.ttc-cookie-panel').isVisible()))throw Error('First-visit cookie preference missing at '+width);
+  await page.addScriptTag({path:axe});
+  const consentScan=await page.evaluate(async()=>await axe.run(document.querySelector('.ttc-cookie-panel'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}}));
+  const severeConsent=consentScan.violations.filter(x=>['critical','serious'].includes(x.impact));
+  if(severeConsent.length)throw Error('Cookie preference banner accessibility defect '+JSON.stringify(severeConsent.map(x=>({id:x.id,impact:x.impact,targets:x.nodes.map(n=>n.target)}))));
+  console.log('COOKIE_PREFERENCE_ACCESSIBILITY_PASS width='+width);
   await page.locator('.ttc-cookie-necessary').click();
   await page.waitForTimeout(300);
   if(await page.locator('.ttc-cookie-panel').isVisible())throw Error('Necessary-only preference did not close banner');
