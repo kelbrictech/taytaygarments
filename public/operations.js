@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s),el=s=>document.createElement(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let user=null,tab='',stock=[],orders=[],members=[],pages=[],jobs=[],events=[],movements=[],suppliers=[],purchaseOrders=[],trustManage=[],qmsData={documents:[],issues:[],records:[]};
+let user=null,tab='',stock=[],orders=[],members=[],pages=[],jobs=[],events=[],movements=[],suppliers=[],purchaseOrders=[],trustManage=[],privacyQueue=[],qmsData={documents:[],issues:[],records:[]};
 function message(text,error=false){const n=$('#message');n.hidden=false;n.textContent=text;n.dataset.error=String(error);n.scrollIntoView({block:'nearest',behavior:'smooth'})}
 function clearMessage(){$('#message').hidden=true}
 async function call(path,method='GET',payload){const headers={};if(payload!==undefined)headers['content-type']='application/json';if(user&&method!=='GET')headers['x-csrf-token']=user.csrf;
@@ -7,13 +7,13 @@ const r=await fetch(path,{method,credentials:'same-origin',cache:'no-store',head
 const data=await r.json().catch(()=>({error:'Invalid server response'}));if(!r.ok)throw Error(data.error||'Request failed');return data}
 const formData=f=>Object.fromEntries(new FormData(f).entries());
 async function init(){try{const data=await call('/api/v2/auth/me');user=data.user;if(user?.role==='customer'){location.replace('/customer');return}await dashboard()}catch(e){user=null;$('#signIn').hidden=false;$('#workspace').hidden=true;if(String(e.message).includes('database'))message('Account access requires the Cloudflare DATABASE_URL connection.',true)}}
-const roleTabs={staff:[['orders','Orders'],['inventory','Inventory'],['ledger','Stock movements'],['purchasing','Purchasing'],['quality','Quality (QMS)']],admin:[['orders','Orders'],['inventory','Inventory'],['ledger','Stock movements'],['purchasing','Purchasing'],['quality','Quality (QMS)'],['people','Staff approval'],['trust','Trust credentials'],['audit','Activity']],webmaster:[['content','Website content'],['trust','Trust credentials']]};
+const roleTabs={staff:[['orders','Orders'],['inventory','Inventory'],['ledger','Stock movements'],['purchasing','Purchasing'],['quality','Quality (QMS)']],admin:[['orders','Orders'],['inventory','Inventory'],['ledger','Stock movements'],['purchasing','Purchasing'],['quality','Quality (QMS)'],['people','Staff approval'],['trust','Trust credentials'],['privacy','Privacy requests'],['audit','Activity']],webmaster:[['content','Website content'],['trust','Trust credentials']]};
 async function dashboard(){clearMessage();$('#signIn').hidden=true;$('#workspace').hidden=false;$('#welcomeTitle').textContent='Operations and client portal.';$('#welcomeDesc').textContent='An accountable view of each workflow, tailored to your assigned access.';$('#userName').textContent=user.name;$('#userEmail').textContent=user.email;$('#roleLabel').textContent=user.role.toUpperCase()+' WORKSPACE';tab=roleTabs[user.role]?.[0][0]||'';await load()}
 async function load(){try{
  if(['staff','admin','customer'].includes(user.role))orders=(await call('/api/v2/orders')).orders;
  if(['staff','admin'].includes(user.role)){stock=(await call('/api/v2/stock')).stock;movements=(await call('/api/v2/stock/movements')).movements;suppliers=(await call('/api/v2/suppliers')).suppliers;purchaseOrders=(await call('/api/v2/purchase-orders')).purchaseOrders}
  if(['staff','admin'].includes(user.role))qmsData=await call('/api/v2/qms/overview');
- if(user.role==='admin'){members=(await call('/api/v2/users')).users;events=(await call('/api/v2/audit')).events}
+ if(user.role==='admin'){members=(await call('/api/v2/users')).users;events=(await call('/api/v2/audit')).events;privacyQueue=(await call('/api/v2/privacy/requests')).requests}
  if(user.role==='webmaster')pages=(await call('/api/v2/cms')).pages;
  if(['admin','webmaster'].includes(user.role))trustManage=(await call('/api/v2/trust/manage')).badges;
  render();
@@ -23,12 +23,35 @@ function render(){const counts=user.role==='customer'?[['ORDERS',orders.length,'
 :[['ORDERS',orders.length,'Tracked orders'],['LOW STOCK',stock.filter(x=>x.low_stock).length,'At/below reorder point'],['STOCK SKUS',stock.length,'Items in the ledger']];
 $('#metrics').innerHTML=counts.map(([label,value,detail])=>'<article class="metric"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong><span>'+esc(detail)+'</span></article>').join('');
 $('#tabs').innerHTML=(roleTabs[user.role]||[]).map(([id,name])=>'<button type="button" data-tab="'+id+'" class="'+(tab===id?'selected':'')+'" aria-pressed="'+(tab===id)+'">'+esc(name)+'</button>').join('');
-$('#dashboardBody').innerHTML=tab==='orders'?ordersHtml():tab==='inventory'?inventoryHtml():tab==='ledger'?ledgerHtml():tab==='purchasing'?purchasingHtml():tab==='trust'?trustManageHtml():tab==='quality'?window.TTCQMS.render(qmsData,user):tab==='people'?peopleHtml():tab==='audit'?auditHtml():tab==='content'?contentHtml():'';
+$('#dashboardBody').innerHTML=tab==='orders'?ordersHtml():tab==='inventory'?inventoryHtml():tab==='ledger'?ledgerHtml():tab==='purchasing'?purchasingHtml():tab==='trust'?trustManageHtml():tab==='privacy'?privacyHtml():tab==='quality'?window.TTCQMS.render(qmsData,user):tab==='people'?peopleHtml():tab==='audit'?auditHtml():tab==='content'?contentHtml():'';
 }
 const state=s=>'<span class="tag '+(['cancelled','rejected'].includes(s)?'warn':'')+'">'+esc(String(s).replaceAll('_',' '))+'</span>';
 const table=(head,rows)=>'<div class="tablewrap"><table class="datatable"><thead><tr>'+head.map(x=>'<th scope="col">'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
 const td=x=>'<td>'+x+'</td>';
 const section=(title,detail,content)=>'<section class="panel dash-panel"><div class="section-head"><div><h3>'+esc(title)+'</h3><p class="small">'+esc(detail)+'</p></div></div>'+content+'</section>';
+function privacyHtml(){
+ const active=privacyQueue.filter(r=>!['resolved','declined'].includes(r.status)).length;
+ const html=privacyQueue.map(r=>{
+  const choices=r.status==='received'?['reviewing','identity_verification']:
+   r.status==='reviewing'?['identity_verification','verified']:
+   r.status==='identity_verification'?['verified']:
+   r.status==='verified'?['resolved','declined']:[];
+  const options=choices.map(v=>'<option value="'+esc(v)+'">'+esc(v.replaceAll('_',' '))+'</option>').join('');
+  const form=choices.length?
+   '<form class="privacy-review-form" data-privacy-ref="'+esc(r.reference)+'"><label>Next step<select name="status" required>'+options+'</select></label><label>Review note / evidence reference<textarea name="note" rows="3" minlength="20" maxlength="1200" required placeholder="Document identity checks, applicable legal retention review, and action evidence."></textarea></label><button class="outline" type="submit">Record review decision</button></form>':
+   '<span class="small">Closed record. No action can be automatically performed from this queue.</span>';
+  return '<tr>'+td('<strong>'+esc(r.reference)+'</strong><span class="muted">'+esc(r.email)+'</span>')+
+   td(esc(r.kind.replaceAll('_',' ')))+td(state(r.status))+
+   td(esc(new Date(r.created_at).toLocaleDateString()))+
+   td('<details><summary>Review privately</summary><p class="small">'+esc(r.details||'No additional details')+'</p>'+
+     (r.review_note?'<p class="small"><strong>Previous note:</strong> '+esc(r.review_note)+'</p>':'')+
+     '<p class="small">Verified identity: '+esc(r.identity_verified_at?'yes':'not yet')+
+     ' · Request outcome: '+esc(r.resolved_at?'review recorded':'pending')+'</p>'+form+'</details>')+'</tr>';
+ }).join('');
+ return section('Privacy rights requests',active+' requiring action. Restricted to administrators. Submitting a request does not mean the data is already deleted.',
+ '<div class="notice"><strong>Personal information · internal only.</strong> Independently verify the requester's identity. Record the actual data action and any applicable retention obligation before marking resolved. This dashboard does not run automated account erasure or send confirmation email.</div>'+
+ (privacyQueue.length?table(['REFERENCE','REQUEST','STATUS','RECEIVED','REVIEW'],[html]):'<p class="empty">No privacy rights requests received.</p>'));
+}
 function ordersHtml(){const rows=orders.map(o=>'<tr>'+td('<strong>'+esc(o.order_no)+'</strong><span class="muted">'+(o.demo?'Sample order':'')+'</span>')+td(esc(o.description))+td(esc(o.quantity))+td(state(o.status)+'<button class="timeline-action" data-timeline="'+esc(o.order_no)+'" type="button">View timeline</button>')+td(o.delivery_target?esc(String(o.delivery_target).slice(0,10)):'—')+(['staff','admin'].includes(user.role)?td(esc(o.customer)):'' )+'</tr>');
 const view=section(user.role==='customer'?'Your order progress':'Order pipeline','Changes are recorded by authorized operations staff. All seeded orders are fictional examples.',rows.length?table(['REFERENCE','DESCRIPTION','QTY','STATUS','TARGET',...(['staff','admin'].includes(user.role)?['CUSTOMER']:[])],rows):'<p class="empty">No orders to display.</p>');
 if(user.role==='customer')return view+'<div id="orderTimeline" class="panel dash-panel" hidden></div><p class="help">Production statuses indicate progress within this demonstration only. No real manufacture or delivery is implied.</p>';
@@ -73,8 +96,13 @@ const trustAction=e.target.closest('[data-trustaction]');if(trustAction){if(!con
 const issue=e.target.closest('[data-issue]');if(issue){if(!confirm('Issue this purchase order for receipt?'))return;issue.disabled=true;try{await call('/api/v2/purchase-orders/'+issue.dataset.issue+'/status','PATCH',{status:'issued'});await load();message('Purchase order issued.')}catch(err){message(err.message,true)}return}
 const ap=e.target.closest('[data-approval]');if(ap){if(!confirm('Set this staff account to '+ap.dataset.approval+'?'))return;ap.disabled=true;try{await call('/api/v2/users/'+ap.dataset.userid+'/approval','PATCH',{status:ap.dataset.approval});await load();message('Staff account status updated.')}catch(err){message(err.message,true)}finally{ap.disabled=false}}
 if(e.target.closest('#signOut')){try{await call('/api/v2/auth/logout','POST',{})}catch{}user=null;orders=[];stock=[];location.reload()}});
-document.addEventListener('submit',async e=>{const f=e.target;if(!f.matches('#loginForm,#staffForm,#orderForm,#orderStatusForm,#stockForm,#purchaseForm,#receiveForm,#supplierForm,.cms-form,.trust-proof-form,.qms-form,#changeForm'))return;e.preventDefault();const btn=f.querySelector('button[type="submit"]');btn.disabled=true;clearMessage();const d=formData(f);
+document.addEventListener('submit',async e=>{const f=e.target;if(!f.matches('#loginForm,#staffForm,#orderForm,#orderStatusForm,#stockForm,#purchaseForm,#receiveForm,#supplierForm,.cms-form,.trust-proof-form,.qms-form,.privacy-review-form,#changeForm'))return;e.preventDefault();const btn=f.querySelector('button[type="submit"]');btn.disabled=true;clearMessage();const d=formData(f);
 try{
+ if(f.matches('.privacy-review-form')){
+  if(!confirm('Confirm: you will record a workflow decision only. Any actual erasure, data disclosure or correction requires separate documented action and identity verification. Continue?'))return;
+  await call('/api/v2/privacy/requests/'+encodeURIComponent(f.dataset.privacyRef)+'/review','PATCH',{status:d.status,note:d.note});
+  await load();message('Privacy request review recorded. This does not automatically erase personal information.');return
+ }
  if(f.matches('.qms-form')){await window.TTCQMS.submit(f,d,call);await load();message('Quality record saved to the controlled register.');return}
  if(f.id==='loginForm'){const res=await call('/api/v2/auth/login','POST',d);user=res.user;f.reset();if(user.role==='customer'){location.replace('/customer');return}await dashboard();message('Signed in as '+user.name+'.');return}
  if(f.id==='staffForm'){await call('/api/v2/auth/request-staff','POST',{name:d.name,email:d.email,password:d.password,consent:d.consent==='on',website:d.website});f.reset();message('Request submitted. Administrator approval is required.');return}
