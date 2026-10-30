@@ -35,7 +35,7 @@ ref.value=new URLSearchParams(location.search).get('reference')||'';
 document.getElementById('lookup').addEventListener('submit',async e=>{
  e.preventDefault();const id=ref.value.trim().toUpperCase();if(!/^TTC-\d{4}-[A-F0-9]{8}$/.test(id)){result.textContent='Please enter a valid inquiry reference.';return}
  btn.disabled=true;result.textContent='Checking…';
- try{const r=await fetch('/api/v1/inquiries/'+encodeURIComponent(id)+'/status?email='+encodeURIComponent(email.value.trim()),{cache:'no-store'});
+ try{const r=await fetch('/api/v1/inquiries/status',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({reference:id,email:email.value.trim()})});
  const d=await r.json();if(!r.ok)throw Error(d.error||'Unable to retrieve status');
  result.textContent='Reference: '+d.inquiry.reference+'\nStatus: '+d.inquiry.status+'\nSubmitted: '+new Date(d.inquiry.created_at).toLocaleString();
  }catch(e){result.textContent=e.message||'Could not check the inquiry.'}finally{btn.disabled=false}
