@@ -94,13 +94,18 @@ SELECT created.id,entry.value->>'sku',entry.value->>'color',NULLIF(entry.value->
 FROM created CROSS JOIN LATERAL jsonb_array_elements(${itemsJson}::jsonb) AS entry(value)`;
 }catch(err){console.error('RFQ insertion error:',String(err).slice(0,150));return json({error:'Unable to persist inquiry; please retry.'},503)}
 return json({received:true,reference,message:'Inquiry received; not an order or confirmed quotation.'},201)}
-const trackMatch=path.match(/^\/api\/v1\/inquiries\/(TTC-\d{4}-[A-F0-9]{8})\/status$/);
-if(trackMatch&&r.method==='GET'){
-const email=(new URL(r.url).searchParams.get('email')||'').trim().toLowerCase();
-if(email.length>150||!(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)))return json({error:'A valid inquiry email is required.'},400);
-const rows=await db`SELECT reference,status,created_at FROM ttc_inquiries WHERE reference=${trackMatch[1]} AND lower(email)=${email} LIMIT 1`;
-return rows.length?json({inquiry:rows[0]}):json({error:'No matching inquiry found.'},404);
+if(path==='/api/v1/inquiries/status'&&r.method==='POST'){
+ if(r.headers.get('content-type')?.split(';')[0]!=='application/json')return json({error:'JSON required.'},415);
+ let x:Record<string,unknown>;
+ try{const raw=await r.text();if(raw.length>2048)return json({error:'Request too long.'},413);x=JSON.parse(raw) as Record<string,unknown>}
+ catch{return json({error:'Invalid tracking request.'},400)}
+ const reference=typeof x.reference==='string'?x.reference.trim().toUpperCase():'';
+ const email=typeof x.email==='string'?x.email.trim().toLowerCase():'';
+ if(!/^TTC-\d{4}-[A-F0-9]{8}$/.test(reference)||email.length>150||!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return json({error:'Valid inquiry reference and email required.'},400);
+ const rows=await db`SELECT reference,status,created_at FROM ttc_inquiries WHERE reference=${reference} AND lower(email)=${email} LIMIT 1`;
+ return rows.length?json({inquiry:rows[0]}):json({error:'No matching inquiry found.'},404);
 }
+if(/^\/api\/v1\/inquiries\/TTC-\d{4}-[A-F0-9]{8}\/status$/.test(path))return json({error:'Use the privacy-safe tracking form to submit email in a POST body.'},410);
 if(path==='/api/v1/admin/products'&&r.method==='GET'){
 if(!authorize(r,e))return json({error:'Unauthorized.'},401);
 return json({products:await db`SELECT p.sku,p.slug,p.name,p.category,p.subtitle,p.concept,p.published,p.display_rank,
