@@ -62,3 +62,10 @@ The [implementation and gap register](docs/ISO_9001_2026_IMPLEMENTATION.md) dist
 ## Customer-facing account entry
 
 The showroom now links directly to [My Orders](https://taytaygarments.arjayb-fb.workers.dev/customer), a dedicated customer sign-in and role-scoped order history/timeline. A separate inquiry reference lookup remains at `/track.html`. Staff, administrators and webmaster use the [Operations Portal](https://taytaygarments.arjayb-fb.workers.dev/portal.html). The same server session, CSRF checks and customer-only order queries are retained. The two pages redirect users to the appropriate workspace based on their authenticated role; customer onboarding still requires an issued account and is not self-registration.
+
+
+## Shared client configuration (Phase 1 committed)
+
+`src/client-config.ts` validates a deployment-scoped `CLIENT_CONFIG_JSON` (optional). Without the variable, the Taytay Garments branding and currently enabled modules remain the default. `GET /api/v1/config` publishes **only** the non-secret client name, tagline, location, validated theme colors and module flags. `public/client-config.js` updates marked branding and navigation on the public, customer, inquiry tracking and operations pages. Orders, inventory, quality and careers also receive server-side API feature gates. See `clients/example-apparel.json` as an **illustrative** second client's configuration.
+
+For a new customer, deploy a **separate** Cloudflare Worker with its own domain, `DATABASE_URL`, `IP_HASH_PEPPER`, Turnstile settings and client JSON; preserve independent backups and migrate its database separately. This is configuration groundwork, **not yet** a fully white-label application: garment-specific copy and imagery, TTC-prefixed database tables, order numbers, inquiry prefixes, workflow state machines and legal text remain Taytay-specific. Do not represent the example as a deployable cross-industry site. Regression tests: `npm run typecheck && npm test`. Client configuration must not include secrets.
