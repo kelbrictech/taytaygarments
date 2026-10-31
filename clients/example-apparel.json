@@ -1,0 +1,11 @@
+{
+  "id":"example-apparel",
+  "brand":{
+    "displayName":"Example Apparel Studio",
+    "tagline":"CUSTOM GARMENT PRODUCTION",
+    "location":"Philippines",
+    "primaryColor":"#283f58",
+    "accentColor":"#bd8654"
+  },
+  "features":{"orders":true,"inventory":true,"quality":true,"careers":false}
+}
