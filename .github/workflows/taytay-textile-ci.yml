@@ -26,6 +26,7 @@ jobs:
         run: npm test
       - name: Validate browser JavaScript syntax
         run: |
+          node --check public/client-config.js
           node --check public/operations.js
           node --check public/customer.js
           node --check public/ttc-integration.js
