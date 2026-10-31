@@ -1,12 +1,14 @@
 import {neon} from '@neondatabase/serverless';
 import {portalApi} from './portal';
+import {loadClientConfig,featureForApiPath} from './client-config';
 import {normalizeInquiry,validateInquiry,makeReference} from './domain';
-interface Env{DATABASE_URL?:string;ADMIN_API_TOKEN?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;TURNSTILE_SITE_KEY?:string;INQUIRIES_ENABLED?:string;SITE_STATUS?:string;ASSETS:Fetcher}
+interface Env{CLIENT_CONFIG_JSON?:string;DATABASE_URL?:string;ADMIN_API_TOKEN?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;TURNSTILE_SITE_KEY?:string;INQUIRIES_ENABLED?:string;SITE_STATUS?:string;ASSETS:Fetcher}
 const json=(body:unknown,status=200,extra:Record<string,string>={})=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',...extra}});
 function authorize(r:Request,e:Env){const token=e.ADMIN_API_TOKEN||'',supplied=(r.headers.get('authorization')||'').replace(/^Bearer\s+/i,'');if(token.length<32||supplied.length!==token.length)return false;let n=0;for(let i=0;i<token.length;i++)n|=token.charCodeAt(i)^supplied.charCodeAt(i);return n===0}
 async function fingerprint(r:Request,pepper:string){const ip=r.headers.get('cf-connecting-ip');if(!ip||!pepper)return null;const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pepper+'|'+ip));return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('')}
 async function challenge(token:string,r:Request,secret:string){if(!secret)return true;if(!token)return false;const body=new FormData();body.set('secret',secret);body.set('response',token);const ip=r.headers.get('cf-connecting-ip');if(ip)body.set('remoteip',ip);try{const res=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body});const data=await res.json() as {success?:boolean};return Boolean(data.success)}catch{return false}}
 async function api(r:Request,e:Env):Promise<Response>{const path=new URL(r.url).pathname;
+if(path==='/api/v1/config'&&r.method==='GET')return json(loadClientConfig(e));
 if(path==='/api/health'&&r.method==='GET'){
 const dbReady=Boolean(e.DATABASE_URL),guardReady=Boolean(e.IP_HASH_PEPPER);
 const turnstileReady=Boolean(e.TURNSTILE_SECRET&&e.TURNSTILE_SITE_KEY);
@@ -14,7 +16,7 @@ const prod=(e.SITE_STATUS||'development')==='production';
 return json({ok:true,service:'taytay-textile-co',databaseConfigured:dbReady,
 inquiriesConfigured:dbReady&&guardReady,privacyRequestAvailable:dbReady&&guardReady,inquirySubmissionEnabled:e.INQUIRIES_ENABLED==='true'&&dbReady&&guardReady&&(!prod||turnstileReady),
 turnstileSiteKey:turnstileReady?e.TURNSTILE_SITE_KEY:null,status:e.SITE_STATUS||'development'});}
-if(path.startsWith('/api/v2/'))return portalApi(r,e);
+if(path.startsWith('/api/v2/')){const feature=featureForApiPath(path);if(feature&&!loadClientConfig(e).features[feature])return json({error:'Module unavailable for this client.'},404);return portalApi(r,e)}
 if(path.startsWith('/api/v1/admin/'))return json({error:'Legacy admin API retired. Sign in at /portal.html.'},410);
 if(!e.DATABASE_URL)return json({error:'Database not configured.'},503);
 const db=neon(e.DATABASE_URL);
