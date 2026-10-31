@@ -7,7 +7,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "client:new": "node tools/make-client-config.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0"
