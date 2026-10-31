@@ -101,3 +101,18 @@ test('legacy GET status lookup no longer accepts email in querystring',async()=>
  const r=await worker.fetch(req('/api/v1/inquiries/TTC-2026-12345678/status?email=buyer%40example.com'),env);
  assert.equal(r.status,410);
 });
+
+test('public client configuration is available without exposing secrets',async()=>{
+ const r=await worker.fetch(req('/api/v1/config'),{ASSETS:env.ASSETS});
+ assert.equal(r.status,200);
+ const data=await r.json();
+ assert.equal(data.id,'taytaygarments');
+ assert.equal(data.brand.displayName,'Taytay Textile Co.');
+ assert.equal(JSON.stringify(data).includes('DATABASE_URL'),false);
+});
+test('disabled order module is rejected on server before customer access',async()=>{
+ const alternate=JSON.stringify({id:'example-apparel',features:{orders:false}});
+ const r=await worker.fetch(req('/api/v2/orders'),{...env,CLIENT_CONFIG_JSON:alternate});
+ assert.equal(r.status,404);
+ assert.match((await r.json()).error,/unavailable/);
+});
