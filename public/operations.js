@@ -6,13 +6,16 @@ async function call(path,method='GET',payload){const headers={};if(payload!==und
 const r=await fetch(path,{method,credentials:'same-origin',cache:'no-store',headers,body:payload===undefined?undefined:JSON.stringify(payload)});
 const data=await r.json().catch(()=>({error:'Invalid server response'}));if(!r.ok)throw Error(data.error||'Request failed');return data}
 const formData=f=>Object.fromEntries(new FormData(f).entries());
-async function init(){try{const data=await call('/api/v2/auth/me');user=data.user;if(user?.role==='customer'){location.replace('/customer');return}await dashboard()}catch(e){user=null;$('#signIn').hidden=false;$('#workspace').hidden=true;if(String(e.message).includes('database'))message('Account access requires the Cloudflare DATABASE_URL connection.',true)}}
+async function init(){if(window.CLIENT_CONFIG_READY)await window.CLIENT_CONFIG_READY;try{const data=await call('/api/v2/auth/me');user=data.user;if(user?.role==='customer'){location.replace('/customer');return}await dashboard()}catch(e){user=null;$('#signIn').hidden=false;$('#workspace').hidden=true;if(String(e.message).includes('database'))message('Account access requires the Cloudflare DATABASE_URL connection.',true)}}
+const enabled=feature=>window.CLIENT_PUBLIC_CONFIG?.features?.[feature]!==false;
+const moduleForTab={orders:'orders',inventory:'inventory',ledger:'inventory',purchasing:'inventory',quality:'quality'};
+const availableTabs=()=> (roleTabs[user.role]||[]).filter(([id])=>!moduleForTab[id]||enabled(moduleForTab[id]));
 const roleTabs={staff:[['orders','Orders'],['inventory','Inventory'],['ledger','Stock movements'],['purchasing','Purchasing'],['quality','Quality (QMS)']],admin:[['orders','Orders'],['inventory','Inventory'],['ledger','Stock movements'],['purchasing','Purchasing'],['quality','Quality (QMS)'],['people','Staff approval'],['trust','Trust credentials'],['privacy','Privacy requests'],['audit','Activity']],webmaster:[['content','Website content'],['trust','Trust credentials']]};
-async function dashboard(){clearMessage();$('#signIn').hidden=true;$('#workspace').hidden=false;$('#welcomeTitle').textContent='Operations and client portal.';$('#welcomeDesc').textContent='An accountable view of each workflow, tailored to your assigned access.';$('#userName').textContent=user.name;$('#userEmail').textContent=user.email;$('#roleLabel').textContent=user.role.toUpperCase()+' WORKSPACE';tab=roleTabs[user.role]?.[0][0]||'';await load()}
+async function dashboard(){clearMessage();$('#signIn').hidden=true;$('#workspace').hidden=false;$('#welcomeTitle').textContent='Operations and client portal.';$('#welcomeDesc').textContent='An accountable view of each workflow, tailored to your assigned access.';$('#userName').textContent=user.name;$('#userEmail').textContent=user.email;$('#roleLabel').textContent=user.role.toUpperCase()+' WORKSPACE';tab=availableTabs()[0]?.[0]||'';await load()}
 async function load(){try{
- if(['staff','admin','customer'].includes(user.role))orders=(await call('/api/v2/orders')).orders;
- if(['staff','admin'].includes(user.role)){stock=(await call('/api/v2/stock')).stock;movements=(await call('/api/v2/stock/movements')).movements;suppliers=(await call('/api/v2/suppliers')).suppliers;purchaseOrders=(await call('/api/v2/purchase-orders')).purchaseOrders}
- if(['staff','admin'].includes(user.role))qmsData=await call('/api/v2/qms/overview');
+ if(enabled('orders')&&['staff','admin','customer'].includes(user.role))orders=(await call('/api/v2/orders')).orders;
+ if(enabled('inventory')&&['staff','admin'].includes(user.role)){stock=(await call('/api/v2/stock')).stock;movements=(await call('/api/v2/stock/movements')).movements;suppliers=(await call('/api/v2/suppliers')).suppliers;purchaseOrders=(await call('/api/v2/purchase-orders')).purchaseOrders}
+ if(enabled('quality')&&['staff','admin'].includes(user.role))qmsData=await call('/api/v2/qms/overview');
  if(user.role==='admin'){members=(await call('/api/v2/users')).users;events=(await call('/api/v2/audit')).events;privacyQueue=(await call('/api/v2/privacy/requests')).requests}
  if(user.role==='webmaster')pages=(await call('/api/v2/cms')).pages;
  if(['admin','webmaster'].includes(user.role))trustManage=(await call('/api/v2/trust/manage')).badges;
@@ -22,7 +25,7 @@ function render(){const counts=user.role==='customer'?[['ORDERS',orders.length,'
 :user.role==='webmaster'?[['PAGES',pages.length,'Managed site sections'],['PUBLISHED',pages.filter(x=>x.published).length,'Available publicly'],['DRAFTS',pages.filter(x=>!x.published).length,'Awaiting publication']]
 :[['ORDERS',orders.length,'Tracked orders'],['LOW STOCK',stock.filter(x=>x.low_stock).length,'At/below reorder point'],['STOCK SKUS',stock.length,'Items in the ledger']];
 $('#metrics').innerHTML=counts.map(([label,value,detail])=>'<article class="metric"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong><span>'+esc(detail)+'</span></article>').join('');
-$('#tabs').innerHTML=(roleTabs[user.role]||[]).map(([id,name])=>'<button type="button" data-tab="'+id+'" class="'+(tab===id?'selected':'')+'" aria-pressed="'+(tab===id)+'">'+esc(name)+'</button>').join('');
+$('#tabs').innerHTML=availableTabs().map(([id,name])=>'<button type="button" data-tab="'+id+'" class="'+(tab===id?'selected':'')+'" aria-pressed="'+(tab===id)+'">'+esc(name)+'</button>').join('');
 $('#dashboardBody').innerHTML=tab==='orders'?ordersHtml():tab==='inventory'?inventoryHtml():tab==='ledger'?ledgerHtml():tab==='purchasing'?purchasingHtml():tab==='trust'?trustManageHtml():tab==='privacy'?privacyHtml():tab==='quality'?window.TTCQMS.render(qmsData,user):tab==='people'?peopleHtml():tab==='audit'?auditHtml():tab==='content'?contentHtml():'';
 }
 const state=s=>'<span class="tag '+(['cancelled','rejected'].includes(s)?'warn':'')+'">'+esc(String(s).replaceAll('_',' '))+'</span>';
