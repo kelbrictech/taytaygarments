@@ -19,9 +19,10 @@ button{font:inherit;margin-top:22px;background:#153c36;color:#fff;border:0;borde
 button:disabled{opacity:.5;cursor:wait}.result{min-height:24px;margin-top:20px;white-space:pre-line;font-weight:600}
 .small{font-size:13px}
 </style>
+<script src="/client-config.js" defer></script>
 <script src="/privacy-controls.js" defer></script>
 </head><body>
-<header><a href="/#/showroom">Taytay Textile Co.</a> · <a href="/customer">Customer Account / My Orders</a></header>
+<header><a href="/#/showroom" data-client-brand="name">Taytay Textile Co.</a> · <a href="/customer">Customer Account / My Orders</a></header>
 <main><h1>Check inquiry status</h1><p class="small">Have a customer account? <a href="/customer">Sign in to My Orders</a> for your assigned garment orders and milestones.</p><p>Use the reference from your submission and the email you entered. A received inquiry is not a confirmed order or quotation.</p>
 <section class="panel"><form id="lookup">
 <label for="reference">Inquiry reference</label><input id="reference" placeholder="TTC-2026-XXXXXXXX" pattern="TTC-[0-9]{4}-[A-F0-9]{8}" required maxlength="17" autocomplete="off">
