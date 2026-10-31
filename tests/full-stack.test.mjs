@@ -8,6 +8,8 @@ const compile=source=>ts.transpileModule(source,{compilerOptions:{target:ts.Scri
 const uri=code=>'data:text/javascript;base64,'+Buffer.from(code).toString('base64');
 const domain=await import(uri(compile(readFileSync(new URL('src/domain.ts',root),'utf8'))));
 globalThis.__ttcTestDomain=domain;
+const clientConfig=await import(uri(compile(readFileSync(new URL('src/client-config.ts',root),'utf8'))));
+globalThis.__ttcTestClientConfig=clientConfig;
 const calls=[];
 globalThis.__ttcTestNeon=()=>async (strings,...values)=>{
  const sql=strings.join('?');calls.push({sql,values});
@@ -21,6 +23,7 @@ globalThis.__ttcTestNeon=()=>async (strings,...values)=>{
 let source=readFileSync(new URL('src/worker.ts',root),'utf8');
 source=source.replace("import {neon} from '@neondatabase/serverless';","const neon=globalThis.__ttcTestNeon;");
 source=source.replace("import {portalApi} from './portal';","const portalApi=globalThis.__ttcPortalTestApi;");
+source=source.replace("import {loadClientConfig,featureForApiPath} from './client-config';","const {loadClientConfig,featureForApiPath}=globalThis.__ttcTestClientConfig;");
 globalThis.__ttcPortalTestApi=async()=>new Response(JSON.stringify({error:'portal test stub'}),{status:404,headers:{'content-type':'application/json'}});
 source=source.replace("import {normalizeInquiry,validateInquiry,makeReference} from './domain';","const {normalizeInquiry,validateInquiry,makeReference}=globalThis.__ttcTestDomain;");
 const worker=(await import(uri(compile(source)))).default;
