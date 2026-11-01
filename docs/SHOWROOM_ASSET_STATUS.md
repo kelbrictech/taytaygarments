@@ -10,7 +10,7 @@ Authoritative specification: [VIRTUAL_SHOWROOM_VISUAL_ASSET_PRODUCTION_BRIEF.md]
 - Exact WebP files: `public/assets/showroom/TTC-SCH-002/{color}/{angle}.webp`.
 - Exact public presentation files registered in Cloudinary under `taytay-textile-co/TTC-SCH-002/{color}/{angle}`.
 - Neon table `ttc_product_variants`: 4 colors registered; `ttc_product_media`: 12 media records.
-- Live page: `https://taytaygarments.arjayb-fb.workers.dev/#/showroom`.
+- Live page: `https://taytaygarments.kelbrictech.workers.dev/#/showroom`.
 - Reactivity tested by GitHub Action: 24/24 combinations across 1440px and 390px; all images loaded, color/angle selection and saved project-brief color tested.
 - **Provenance exception**: these accepted visuals were extracted from AI-generated composite plates, following the user's explicit visual approval of the blazers. This exception **does not waive** the independent-render requirement for remaining products. All are digital concepts, not photographs of actual supplier inventory.
 

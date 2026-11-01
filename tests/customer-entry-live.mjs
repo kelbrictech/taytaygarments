@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 import fs from 'node:fs';
-const origin='https://taytaygarments.arjayb-fb.workers.dev';
+const origin='https://taytaygarments.kelbrictech.workers.dev';
 fs.mkdirSync('artifacts/customer-access',{recursive:true});
 // Account for Cloudflare's GitHub-linked deployment after a repository push.
 let ready=false;

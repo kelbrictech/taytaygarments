@@ -4,7 +4,7 @@ Worker: `taytaygarments`. GitHub repository: `kelbrictech/taytaygarments`, branc
 
 ## Verified native GitHub deployment
 
-Cloudflare Workers Builds is **already connected** to the GitHub repository. GitHub's Cloudflare Workers and Pages check-run on commit `a3091c0` was successful. It links to the Worker build record. The production site is https://taytaygarments.arjayb-fb.workers.dev/#/resources.
+Cloudflare Workers Builds is **already connected** to the GitHub repository. GitHub's Cloudflare Workers and Pages check-run on commit `a3091c0` was successful. It links to the Worker build record. The production site is https://taytaygarments.kelbrictech.workers.dev/#/resources.
 
 Commits pushed to the configured production branch (`main`) are automatically built/deployed by Cloudflare Workers Builds. Separate GitHub Actions deployment, `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are unnecessary and are **not** part of this project's deployment path.
 

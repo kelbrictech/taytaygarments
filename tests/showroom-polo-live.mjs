@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-const ORIGIN='https://taytaygarments.arjayb-fb.workers.dev';
+const ORIGIN='https://taytaygarments.kelbrictech.workers.dev';
 const colors=['navy','white','deepGreen','burgundy'];
 const angles=['front','side','back'];
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});

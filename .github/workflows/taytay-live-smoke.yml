@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Inspect Cloudflare public website and API
         env:
-          ORIGIN: https://taytaygarments.arjayb-fb.workers.dev
+          ORIGIN: https://taytaygarments.kelbrictech.workers.dev
         run: |
           set -euo pipefail
           for route in / /typography.css /api/health /api/v1/products; do

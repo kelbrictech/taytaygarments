@@ -4,10 +4,10 @@ This is a development demonstration with **fictional data**. None of the listed 
 
 ## Canonical site and portal
 
-- Site: https://taytaygarments.arjayb-fb.workers.dev/
-- Taytay garments industry: https://taytaygarments.arjayb-fb.workers.dev/#/taytay-hub
-- Careers: https://taytaygarments.arjayb-fb.workers.dev/#/careers
-- Portal: https://taytaygarments.arjayb-fb.workers.dev/portal.html
+- Site: https://taytaygarments.kelbrictech.workers.dev/
+- Taytay garments industry: https://taytaygarments.kelbrictech.workers.dev/#/taytay-hub
+- Careers: https://taytaygarments.kelbrictech.workers.dev/#/careers
+- Portal: https://taytaygarments.kelbrictech.workers.dev/portal.html
 - Old `/admin.html` redirects to the portal. Bearer-only administration has been disabled.
 
 ## Accounts seeded in existing Neon

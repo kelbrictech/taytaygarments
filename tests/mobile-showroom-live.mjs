@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 import fs from 'node:fs';
-const url='https://taytaygarments.arjayb-fb.workers.dev/#/showroom';
+const url='https://taytaygarments.kelbrictech.workers.dev/#/showroom';
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const results=[];
 fs.mkdirSync('artifacts/mobile-showroom',{recursive:true});

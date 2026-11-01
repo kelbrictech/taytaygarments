@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 import fs from 'node:fs';
-const origin='https://taytaygarments.arjayb-fb.workers.dev';
+const origin='https://taytaygarments.kelbrictech.workers.dev';
 fs.mkdirSync('artifacts/qms',{recursive:true});
 let readiness=false;
 for(let n=0;n<36;n++){

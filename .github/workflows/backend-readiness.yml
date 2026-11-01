@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Verify real Cloudflare API and Neon catalog
         env:
-          ORIGIN: https://taytaygarments.arjayb-fb.workers.dev
+          ORIGIN: https://taytaygarments.kelbrictech.workers.dev
         run: |
           set -euo pipefail
           curl -fsS --retry 3 "$ORIGIN/api/health" -o health.json

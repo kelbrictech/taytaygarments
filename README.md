@@ -44,7 +44,7 @@ Follow [Full-stack runbook](docs/FULL_STACK_RUNBOOK.md) and [Cloudflare deployme
 - Passwords for the seeded accounts are **not** in the repository. The five accounts are documented by role in `docs/CLIENT_DEMO_GUIDE.md`; passwords were shared only with the project owner.
 - `INQUIRIES_ENABLED` defaults to `false` and must stay false until all launch gates pass.
 - `TURNSTILE_SITE_KEY` (public variable) and `TURNSTILE_SECRET` (secret) are required when `SITE_STATUS=production` and inquiries are enabled.
-- The existing **Cloudflare Workers Builds → GitHub** connection deploys commits from `main`; verified successful Cloudflare check on commit `a3091c0` (2026-10-28). Do not add another GitHub Actions deployment or repository Cloudflare API credentials. Production URL: https://taytaygarments.arjayb-fb.workers.dev/#/resources.
+- The existing **Cloudflare Workers Builds → GitHub** connection deploys commits from `main`; verified successful Cloudflare check on commit `a3091c0` (2026-10-28). Do not add another GitHub Actions deployment or repository Cloudflare API credentials. Production URL: https://taytaygarments.kelbrictech.workers.dev/#/resources.
 - Database migrations: `db/001_initial.sql` through `db/007_demo_suppliers_po.sql`; the live Neon project has received additive schema and demo fixture migrations while preserving existing product data.
 
 ## Verified / not yet verified
@@ -57,11 +57,11 @@ Follow [Full-stack runbook](docs/FULL_STACK_RUNBOOK.md) and [Cloudflare deployme
 
 ## ISO 9001:2026 readiness
 
-The [implementation and gap register](docs/ISO_9001_2026_IMPLEMENTATION.md) distinguishes implemented software controls from organization-wide requirements. A new staff/admin Quality (QMS) dashboard supports versioned documents, risks, CAPA, immutable inspections, audits and management-review records. The public [Quality](https://taytaygarments.arjayb-fb.workers.dev/#/quality) page makes clear that no ISO 9001 certification is verified. A passing final inspection is required before new order dispatch/delivery events. 
+The [implementation and gap register](docs/ISO_9001_2026_IMPLEMENTATION.md) distinguishes implemented software controls from organization-wide requirements. A new staff/admin Quality (QMS) dashboard supports versioned documents, risks, CAPA, immutable inspections, audits and management-review records. The public [Quality](https://taytaygarments.kelbrictech.workers.dev/#/quality) page makes clear that no ISO 9001 certification is verified. A passing final inspection is required before new order dispatch/delivery events. 
 
 ## Customer-facing account entry
 
-The showroom now links directly to [My Orders](https://taytaygarments.arjayb-fb.workers.dev/customer), a dedicated customer sign-in and role-scoped order history/timeline. A separate inquiry reference lookup remains at `/track.html`. Staff, administrators and webmaster use the [Operations Portal](https://taytaygarments.arjayb-fb.workers.dev/portal.html). The same server session, CSRF checks and customer-only order queries are retained. The two pages redirect users to the appropriate workspace based on their authenticated role; customer onboarding still requires an issued account and is not self-registration.
+The showroom now links directly to [My Orders](https://taytaygarments.kelbrictech.workers.dev/customer), a dedicated customer sign-in and role-scoped order history/timeline. A separate inquiry reference lookup remains at `/track.html`. Staff, administrators and webmaster use the [Operations Portal](https://taytaygarments.kelbrictech.workers.dev/portal.html). The same server session, CSRF checks and customer-only order queries are retained. The two pages redirect users to the appropriate workspace based on their authenticated role; customer onboarding still requires an issued account and is not self-registration.
 
 
 ## Shared client configuration (Phase 1 committed)

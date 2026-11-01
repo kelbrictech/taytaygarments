@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 import fs from 'node:fs';
-const origin='https://taytaygarments.arjayb-fb.workers.dev';
+const origin='https://taytaygarments.kelbrictech.workers.dev';
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 fs.mkdirSync('artifacts/trust',{recursive:true});
 const checks=[];

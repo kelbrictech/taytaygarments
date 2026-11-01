@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';
 import fs from 'node:fs';
-const base='https://taytaygarments.arjayb-fb.workers.dev/';
+const base='https://taytaygarments.kelbrictech.workers.dev/';
 // Cloudflare's native build often completes after GitHub Actions begins; verify the release marker before browser assertions.
 let liveReady=false;
 for(let attempt=0;attempt<48;attempt++){

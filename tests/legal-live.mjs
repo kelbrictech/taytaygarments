@@ -2,7 +2,7 @@ import {chromium} from 'playwright';
 import {createRequire} from 'node:module';
 import fs from 'node:fs';
 const require=createRequire(import.meta.url),axe=require.resolve('axe-core/axe.min.js');
-const origin='https://taytaygarments.arjayb-fb.workers.dev';
+const origin='https://taytaygarments.kelbrictech.workers.dev';
 const policies=['privacy','terms','returns','cookies','accessibility','privacy-request','image-credits'];
 const reports=[];
 fs.mkdirSync('artifacts/legal-audit',{recursive:true});

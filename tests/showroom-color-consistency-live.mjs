@@ -1,5 +1,5 @@
 import {chromium} from 'playwright';
-const ORIGIN='https://taytaygarments.arjayb-fb.workers.dev';
+const ORIGIN='https://taytaygarments.kelbrictech.workers.dev';
 const EXPECTED={
  'campus-polo':['navy','white','deepGreen','burgundy'],
  'scholar-blazer':['navy','charcoal','burgundy','deepGreen'],
