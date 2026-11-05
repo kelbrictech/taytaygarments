@@ -1,0 +1,14 @@
+# Security headers for static pages (Cloudflare Workers static assets).
+# The Worker only runs first for /api/*, so pages are served straight from assets
+# and never pass through the header wrapper in src/worker.ts. These rules close that gap.
+# Docs: https://developers.cloudflare.com/workers/static-assets/headers/
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000
+  # REPORT-ONLY: logs violations in the browser console, blocks nothing.
+  # 'unsafe-inline' is still present because index.html embeds its CSS and JS.
+  # After inline code is moved to external files, drop 'unsafe-inline' and enforce.
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://res.cloudinary.com; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'

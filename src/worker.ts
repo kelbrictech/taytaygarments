@@ -2,11 +2,10 @@ import {neon} from '@neondatabase/serverless';
 import {portalApi} from './portal';
 import {loadClientConfig,featureForApiPath} from './client-config';
 import {normalizeInquiry,validateInquiry,makeReference} from './domain';
-interface Env{CLIENT_CONFIG_JSON?:string;DATABASE_URL?:string;ADMIN_API_TOKEN?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;TURNSTILE_SITE_KEY?:string;INQUIRIES_ENABLED?:string;SITE_STATUS?:string;ASSETS:Fetcher}
+interface Env{CLIENT_CONFIG_JSON?:string;DATABASE_URL?:string;IP_HASH_PEPPER?:string;TURNSTILE_SECRET?:string;TURNSTILE_SITE_KEY?:string;INQUIRIES_ENABLED?:string;SITE_STATUS?:string;ASSETS:Fetcher}
 const json=(body:unknown,status=200,extra:Record<string,string>={})=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json;charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',...extra}});
-function authorize(r:Request,e:Env){const token=e.ADMIN_API_TOKEN||'',supplied=(r.headers.get('authorization')||'').replace(/^Bearer\s+/i,'');if(token.length<32||supplied.length!==token.length)return false;let n=0;for(let i=0;i<token.length;i++)n|=token.charCodeAt(i)^supplied.charCodeAt(i);return n===0}
 async function fingerprint(r:Request,pepper:string){const ip=r.headers.get('cf-connecting-ip');if(!ip||!pepper)return null;const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pepper+'|'+ip));return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('')}
-async function challenge(token:string,r:Request,secret:string){if(!secret)return true;if(!token)return false;const body=new FormData();body.set('secret',secret);body.set('response',token);const ip=r.headers.get('cf-connecting-ip');if(ip)body.set('remoteip',ip);try{const res=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body});const data=await res.json() as {success?:boolean};return Boolean(data.success)}catch{return false}}
+async function challenge(token:string,r:Request,secret:string){if(!secret)return true;if(!token)return false;const body=new FormData();body.set('secret',secret);body.set('response',token);const ip=r.headers.get('cf-connecting-ip');if(ip)body.set('remoteip',ip);try{const res=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body,signal:AbortSignal.timeout(5000)});const data=await res.json() as {success?:boolean};return Boolean(data.success)}catch{return false}}
 async function api(r:Request,e:Env):Promise<Response>{const path=new URL(r.url).pathname;
 if(path==='/api/v1/config'&&r.method==='GET')return json(loadClientConfig(e));
 if(path==='/api/health'&&r.method==='GET'){
@@ -108,58 +107,5 @@ if(path==='/api/v1/inquiries/status'&&r.method==='POST'){
  return rows.length?json({inquiry:rows[0]}):json({error:'No matching inquiry found.'},404);
 }
 if(/^\/api\/v1\/inquiries\/TTC-\d{4}-[A-F0-9]{8}\/status$/.test(path))return json({error:'Use the privacy-safe tracking form to submit email in a POST body.'},410);
-if(path==='/api/v1/admin/products'&&r.method==='GET'){
-if(!authorize(r,e))return json({error:'Unauthorized.'},401);
-return json({products:await db`SELECT p.sku,p.slug,p.name,p.category,p.subtitle,p.concept,p.published,p.display_rank,
-(SELECT COUNT(*)::int FROM ttc_product_variants v WHERE v.product_id=p.id) AS color_count,
-(SELECT COUNT(*)::int FROM ttc_product_media m JOIN ttc_product_variants v ON v.id=m.variant_id WHERE v.product_id=p.id) AS media_count
-FROM ttc_products p ORDER BY p.display_rank,p.name`});}
-if(path==='/api/v1/admin/products'&&r.method==='POST'){
-if(!authorize(r,e))return json({error:'Unauthorized.'},401);
-let x:Record<string,unknown>;try{x=await r.json() as Record<string,unknown>}catch{return json({error:'Invalid JSON.'},400)}
-const slug=String(x.slug||''),sku=String(x.sku||''),name=String(x.name||''),category=String(x.category||'');
-if(!/^[a-z0-9-]{3,80}$/.test(slug)||!/^[A-Z0-9-]{5,80}$/.test(sku)||name.length<3||name.length>150||category.length<2||category.length>60)return json({error:'Invalid product fields.'},422);
-const subtitle=String(x.subtitle||'').slice(0,250);
-try{const rows=await db`INSERT INTO ttc_products(slug,sku,name,category,subtitle,concept,published) VALUES(${slug},${sku},${name},${category},${subtitle},true,false) RETURNING sku,slug,published`;return json(rows[0],201)}catch{return json({error:'SKU or slug exists; no change made.'},409)}
-}
-const productMatch=path.match(/^\/api\/v1\/admin\/products\/([A-Z0-9-]+)$/);
-if(productMatch&&r.method==='PATCH'){
-if(!authorize(r,e))return json({error:'Unauthorized.'},401);
-let x:{published?:unknown};try{x=await r.json() as {published?:unknown}}catch{return json({error:'Invalid JSON.'},400)}
-if(typeof x.published!=='boolean')return json({error:'Boolean published required.'},422);
-const rows=await db`UPDATE ttc_products SET published=${x.published},updated_at=now() WHERE sku=${productMatch[1]} RETURNING sku,slug,published`;
-return rows.length?json(rows[0]):json({error:'Product not found.'},404);
-}
-const variantMatch=path.match(/^\/api\/v1\/admin\/products\/([A-Z0-9-]+)\/variants$/);
-if(variantMatch&&r.method==='POST'){
-if(!authorize(r,e))return json({error:'Unauthorized.'},401);
-let x:Record<string,unknown>;try{x=await r.json() as Record<string,unknown>}catch{return json({error:'Invalid JSON.'},400)}
-const color=String(x.color||''),label=String(x.label||''),hex=String(x.hex||'');
-if(!/^[a-zA-Z0-9-]{2,50}$/.test(color)||label.length<2||label.length>60||!/^#[0-9a-fA-F]{6}$/.test(hex))return json({error:'Invalid color variant.'},422);
-try{const rows=await db`INSERT INTO ttc_product_variants(product_id,color_slug,color_label,color_hex) SELECT id,${color},${label},${hex} FROM ttc_products WHERE sku=${variantMatch[1]} RETURNING color_slug,color_label,color_hex`;return rows.length?json(rows[0],201):json({error:'Product not found.'},404)}catch{return json({error:'Variant already exists.'},409)}
-}
-const mediaMatch=path.match(/^\/api\/v1\/admin\/products\/([A-Z0-9-]+)\/variants\/([a-zA-Z0-9-]+)\/media\/([a-z-]+)$/);
-if(mediaMatch&&r.method==='PUT'){
-if(!authorize(r,e))return json({error:'Unauthorized.'},401);
-let x:Record<string,unknown>;try{x=await r.json() as Record<string,unknown>}catch{return json({error:'Invalid JSON.'},400)}
-const angle=mediaMatch[3],url=String(x.url||''),alt=String(x.alt||'').slice(0,200),status=x.approved===true?'approved':'concept';
-if(!['front','side','back','detail-collar','detail-button','detail-fabric','detail-logo'].includes(angle)||!/^https:\/\/res\.cloudinary\.com\/boay3ffi\/image\/upload\//.test(url)||alt.length<5)return json({error:'Invalid media record or unapproved asset host.'},422);
-const rows=await db`INSERT INTO ttc_product_media(variant_id,angle,url,asset_status,alt_text)
-SELECT v.id,${angle},${url},${status},${alt} FROM ttc_product_variants v JOIN ttc_products p ON p.id=v.product_id
-WHERE p.sku=${mediaMatch[1]} AND v.color_slug=${mediaMatch[2]}
-ON CONFLICT(variant_id,angle) DO UPDATE SET url=excluded.url,asset_status=excluded.asset_status,alt_text=excluded.alt_text
-RETURNING angle,url,asset_status`;
-return rows.length?json(rows[0]):json({error:'Product variant not found.'},404);
-}
-if(path==='/api/v1/admin/inquiries'&&r.method==='GET'){
-if(!authorize(r,e))return json({error:'Unauthorized.'},401);
-return json({inquiries:await db`SELECT reference,organization,sector,contact_name,email,garment_type,quantity_band,service_type,target_timeline,destination,details,status,created_at FROM ttc_inquiries ORDER BY created_at DESC LIMIT 100`});}
-const match=path.match(/^\/api\/v1\/admin\/inquiries\/(TTC-\d{4}-[A-F0-9]{8})\/status$/);
-if(match&&r.method==='PATCH'){
-if(!authorize(r,e))return json({error:'Unauthorized.'},401);
-let x:{status?:string};try{x=await r.json()}catch{return json({error:'Invalid JSON.'},400)}
-if(!['new','reviewing','quoted','closed','archived'].includes(x.status||''))return json({error:'Invalid status.'},422);
-const rows=await db`UPDATE ttc_inquiries SET status=${x.status},updated_at=now() WHERE reference=${match[1]} RETURNING reference,status`;
-return rows.length?json(rows[0]):json({error:'Not found.'},404)}
 return json({error:'Route not found.'},404)}
 export default {async fetch(r:Request,e:Env):Promise<Response>{try{const path=new URL(r.url).pathname;const result=path.startsWith('/api/')?await api(r,e):await e.ASSETS.fetch(r);const h=new Headers(result.headers);h.set('x-content-type-options','nosniff');h.set('referrer-policy','strict-origin-when-cross-origin');h.set('x-frame-options','DENY');h.set('permissions-policy','camera=(),microphone=(),geolocation=()');return new Response(result.body,{status:result.status,headers:h})}catch(err){console.error('Unexpected request error',String(err).slice(0,150));return json({error:'Internal server error.'},500)}}};

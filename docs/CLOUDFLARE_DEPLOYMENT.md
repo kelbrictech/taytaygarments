@@ -11,7 +11,6 @@ Commits pushed to the configured production branch (`main`) are automatically bu
 1. In Cloudflare → Workers & Pages → **taytaygarments** → Settings → Builds, ensure Git repository is `kelbrictech/taytaygarments` and production branch is `main`.
 2. In Cloudflare → Workers & Pages → **taytaygarments** → Settings → Variables and Secrets, add:
    - `DATABASE_URL` secret: Neon pooled PostgreSQL URL for the existing `taytay_textile` database.
-   - `ADMIN_API_TOKEN` secret: strong random token >=64 characters.
    - `IP_HASH_PEPPER` secret: independent strong random value >=64 characters.
 3. Deploy the secret changes in Cloudflare. Do not put values in GitHub, repository files, screenshots or chat.
 4. Verify `GET /api/health` reports `databaseConfigured:true` and `GET /api/v1/products` returns HTTP 200 with 12 product records.

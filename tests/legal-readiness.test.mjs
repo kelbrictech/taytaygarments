@@ -5,7 +5,7 @@ const root=new URL('../',import.meta.url),read=p=>readFileSync(new URL(p,root),'
 const policies=['privacy','terms','returns','cookies','accessibility'];
 const home=read('public/index.html'),controls=read('public/privacy-controls.js'),rights=read('public/privacy-request.html'),rightsJS=read('public/privacy-request.js');
 test('All five legal policies exist as actual independently navigable documents',()=>{
- for(const key of policies){const page=read('public/'+key+'.html');assert.match(page,/<!doctype html>/i);assert.match(page,/<main /);assert.match(page,/Operator review required/);assert.match(page,/<title>/);assert.match(page,/href="\/privacy-request"/)}
+ for(const key of policies){const page=read('public/'+key+'.html');assert.match(page,/<!doctype html>/i);assert.match(page,/<main /);assert.match(page,/Last revised/);assert.match(page,/<title>/);assert.match(page,/href="\/privacy-request"/)}
 });
 test('Public website links legal resources and data-rights request next to customer journeys',()=>{
  for(const url of ['/privacy','/terms','/returns','/cookies','/accessibility','/privacy-request'])assert.ok(home.includes('href="'+url+'"'));
@@ -19,7 +19,8 @@ test('Quote form has a clearly linked processing acknowledgment, never marketing
 test('Unsupported specific company-years claim is removed',()=>{
  assert.doesNotMatch(home,/10\+ <span style="font-size:18px">years/);
  assert.doesNotMatch(home,/With more than a decade of garment-making experience/);
- assert.match(home,/Company-specific experience remains unverified/);
+ // Owner confirmed the founding year on 5 Nov 2026; the unsupported '10+ years' and 'decade' claims must stay absent.
+ assert.match(home,/Since 2018/);
 });
 test('Cookie panel asks a real choice and does not pretend advertising cookies exist',()=>{
  assert.match(controls,/Necessary only/);assert.match(controls,/Save my choice/);

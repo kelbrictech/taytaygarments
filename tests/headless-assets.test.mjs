@@ -28,6 +28,7 @@ test('All four sectors get their own image crop',()=>{
 test('No geometric mannequin SVG artwork is deployed in live HTML',()=>{
  assert.doesNotMatch(source,/\/assets\/mannequins\/[^"']+\.svg/);
 });
-test('Image disclosure remains in landing page',()=>{
- assert.match(source,/Photorealistic mannequin imagery is illustrative/);
+test('Demo-only image framing is not shown to visitors (live site uses real photographs)',()=>{
+ // Owner rule (5 Nov 2026): wording the live site will not use is removed. Alt text still describes each image.
+ assert.doesNotMatch(source,/Photorealistic|Illustrative close-up|Explore illustrative|Illustrated \$\{/);
 });

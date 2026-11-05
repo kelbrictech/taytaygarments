@@ -36,8 +36,9 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
   const email=clean(x.email).toLowerCase(),pw=typeof x.password==='string'?x.password:'';
   if(!emailOk(email)||pw.length<8||pw.length>128)return reply({error:'Incorrect email or password.'},401);
   const ip=await sha((e.IP_HASH_PEPPER||'')+'|'+(r.headers.get('cf-connecting-ip')||'unknown'));
-  const attempts=await q("SELECT count(*)::int AS n FROM ttc_login_attempts WHERE success=false AND created_at>now()-interval '15 minutes' AND (email=$1 OR ip_hash=$2)",[email,ip]);
-  if(Number(attempts[0]?.n||0)>=8)return reply({error:'Too many attempts. Try later.'},429);
+  const attempts=await q("SELECT count(*) FILTER (WHERE email=$1 AND ip_hash=$2)::int AS pair,count(*) FILTER (WHERE ip_hash=$2)::int AS by_ip,count(*) FILTER (WHERE email=$1)::int AS by_email FROM ttc_login_attempts WHERE success=false AND created_at>now()-interval '15 minutes' AND (email=$1 OR ip_hash=$2)",[email,ip]);
+  // Per-pair limit stops guessing; a high per-IP and a very high per-email ceiling still slow spraying and distributed guessing without letting a stranger lock out a known address.
+  if(Number(attempts[0]?.pair||0)>=8||Number(attempts[0]?.by_ip||0)>=30||Number(attempts[0]?.by_email||0)>=60)return reply({error:'Too many attempts. Try later.'},429);
   const users=await q('SELECT * FROM ttc_users WHERE email=$1 LIMIT 1',[email]);const u=users[0];
   const hash=await hashPassword(pw,u?.password_salt||'00000000000000000000000000000000',u?.password_iterations||600000);
   const valid=Boolean(u&&equal(hash,u.password_hash));
@@ -117,8 +118,8 @@ export async function portalApi(r:Request,e:Env):Promise<Response>{
   if(['dispatch','delivered'].includes(status)&&note.length<10)return reply({error:'Dispatch and delivery require a traceable release note.'},422);
   // Evidence gate is enforced inside the order update. Last final-inspection verdict
   // must be PASS for the same order and demo/live environment, avoiding stale releases.
-  const rows=await q("WITH changed AS (UPDATE ttc_orders o SET status=$1,updated_at=now() WHERE order_no=$2 AND ($1 NOT IN ('dispatch','delivered') OR EXISTS (SELECT 1 FROM ttc_qms_records i WHERE i.id=(SELECT newest.id FROM ttc_qms_records newest WHERE newest.order_no=o.order_no AND newest.kind='final_inspection' AND newest.demo=o.demo ORDER BY newest.created_at DESC,newest.id DESC LIMIT 1) AND i.result='pass' AND length(i.evidence_ref)>=6)) RETURNING id), event AS (INSERT INTO ttc_order_events(order_id,actor_id,status,note) SELECT id,$3,$1,$4 FROM changed RETURNING status) SELECT status FROM event",[status,os[1],s.user_id,note]);
-  if(!rows.length)return reply({error:'Order not found or dispatch blocked. Record a passing final inspection linked to this order, with traceable evidence, before release.'},409);await audit('status:'+status,'order',os[1]);return reply({order_no:os[1],status});
+  const rows=await q("WITH changed AS (UPDATE ttc_orders o SET status=$1,updated_at=now() WHERE order_no=$2 AND o.status NOT IN ('delivered','cancelled') AND (o.status<>'dispatch' OR $1 IN ('delivered','cancelled')) AND ($1 NOT IN ('dispatch','delivered') OR EXISTS (SELECT 1 FROM ttc_qms_records i WHERE i.id=(SELECT newest.id FROM ttc_qms_records newest WHERE newest.order_no=o.order_no AND newest.kind='final_inspection' AND newest.demo=o.demo ORDER BY newest.created_at DESC,newest.id DESC LIMIT 1) AND i.result='pass' AND length(i.evidence_ref)>=6)) RETURNING id), event AS (INSERT INTO ttc_order_events(order_id,actor_id,status,note) SELECT id,$3,$1,$4 FROM changed RETURNING status) SELECT status FROM event",[status,os[1],s.user_id,note]);
+  if(!rows.length)return reply({error:'Order not found, already closed (delivered or cancelled), not a permitted move from dispatch, or release blocked. Record a passing final inspection linked to this order, with traceable evidence, before release.'},409);await audit('status:'+status,'order',os[1]);return reply({order_no:os[1],status});
  }
  if(path==='/api/v2/stock'&&method==='GET'){
   if(!access(s,['staff','admin']))return denied();

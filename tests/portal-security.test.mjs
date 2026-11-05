@@ -6,8 +6,10 @@ const ts=createRequire(import.meta.url)('typescript');
 const root=new URL('../',import.meta.url);
 const dbCalls=[];
 let user=null;
+let attemptsRow={pair:0,by_ip:0,by_email:0};
 const q=async(sql,params=[])=>{
  dbCalls.push({sql,params});
+ if(sql.includes('FROM ttc_login_attempts'))return [attemptsRow];
  if(sql.includes('FROM ttc_sessions'))return user?[{token_hash:'h',csrf_token:'csrf-token',user_id:'u-001',role:user,email:'test@example.invalid',full_name:'Test Person',approval_status:'approved',demo:true}]:[];
  if(sql.includes('FROM ttc_jobs'))return [{code:'DEMO-JOB-001',title:'Sample Technician',demo:true}];
  if(sql.includes('FROM ttc_trust_badges'))return [{slug:'smeta',title:'Sedex / SMETA Audit',category:'Ethical production',status:'research',certificate_ref:'',verification_url:'',issuer:'Sedex',proof_kind:'audit'}];
@@ -17,7 +19,7 @@ const q=async(sql,params=[])=>{
  if(sql.includes('FROM ttc_orders'))return [];
  if(sql.includes('FROM ttc_stock_items'))return [{sku:'TEST-STOCK',on_hand:30,reorder_point:10}];
  if(sql.includes('FROM ttc_stock_movements'))return [];
- if(sql.includes('FROM ttc_users'))return [{id:'u-002',role:'staff',approval_status:'pending'}];
+ if(sql.includes('FROM ttc_users'))return [{id:'u-002',role:'staff',approval_status:'pending',password_hash:'0'.repeat(64),password_salt:'0'.repeat(32),password_iterations:600000}];
  if(sql.includes('UPDATE ttc_users'))return [{id:'u-002',role:'staff',approval_status:params[0]}];
  if(sql.includes('UPDATE ttc_content_pages'))return [{slug:params[4],title:params[0],body:params[1],published:params[2]}];
  return [];
@@ -83,4 +85,22 @@ test('Orders cannot dispatch without latest passed inspection and release note',
  const r=await portal(req(endpoint,'PATCH',{status:'dispatch',note:'Authorized dispatch after final QC inspection'}, {...cookie,'x-csrf-token':'csrf-token'}),env);
  assert.equal(r.status,409);
  assert.ok(dbCalls.some(x=>x.sql?.includes("newest.kind='final_inspection'")&&x.sql?.includes("i.result='pass'")),'Release must check latest passing inspection atomically');
+});
+
+test('Login lockout is per email+IP pair, so a stranger cannot lock out a known email',async()=>{
+ user=null;
+ const login=()=>portal(req('/api/v2/auth/login','POST',{email:'victim@example.invalid',password:'wrong-password-16'}),env);
+ attemptsRow={pair:0,by_ip:0,by_email:59};assert.equal((await login()).status,401,'many failures for the email from other IPs must not block this IP');
+ attemptsRow={pair:7,by_ip:7,by_email:7};assert.equal((await login()).status,401);
+ attemptsRow={pair:8,by_ip:8,by_email:8};assert.equal((await login()).status,429);
+ attemptsRow={pair:0,by_ip:30,by_email:0};assert.equal((await login()).status,429);
+ attemptsRow={pair:0,by_ip:0,by_email:60};assert.equal((await login()).status,429);
+ attemptsRow={pair:0,by_ip:0,by_email:0};
+});
+test('Order status update cannot reopen closed orders or step back from dispatch',async()=>{
+ user='staff';dbCalls.length=0;
+ await portal(req('/api/v2/orders/TTC-2026-DEMO01/status','PATCH',{status:'production',note:'moving back'},{...cookie,'x-csrf-token':'csrf-token'}),env);
+ const sql=dbCalls.find(x=>x.sql?.includes('UPDATE ttc_orders'))?.sql||'';
+ assert.match(sql,/o\.status NOT IN \('delivered','cancelled'\)/);
+ assert.match(sql,/o\.status<>'dispatch' OR \$1 IN \('delivered','cancelled'\)/);
 });

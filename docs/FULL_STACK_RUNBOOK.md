@@ -15,10 +15,9 @@
 2. In Cloudflare Workers & Pages → taytaygarments → Settings → Variables and Secrets set:
    - DATABASE_URL (Secret): existing Neon pooled connection string for taytay_textile.
    - IP_HASH_PEPPER (Secret): fresh cryptographically secure random value, >=64 characters.
-   - ADMIN_API_TOKEN (Secret): distinct fresh cryptographically secure random value, >=64 characters.
 3. Production deployments are managed by the existing Cloudflare Workers Builds GitHub integration. Push reviewed commits to `main`; Cloudflare builds/deploys automatically. Confirm the Cloudflare Workers Builds check run passes for the commit. There is no separate GitHub Actions deployment pipeline.
 4. After setting Worker secrets and deploying their changes in Cloudflare, verify `GET /api/health` returns `databaseConfigured:true`, and `GET /api/v1/products` HTTP 200 with a JSON products array (12 records), not the static fallback. Canonical public URL: https://taytaygarments.kelbrictech.workers.dev/#/resources.
-5. Add Cloudflare Access to /admin.html (and ideally /api/v1/admin/*) with approved users only. The bearer token is still required.
+5. Optionally add Cloudflare Access in front of /portal.html and /admin.html for an extra layer. The legacy `/api/v1/admin/*` routes and the `ADMIN_API_TOKEN` secret are retired; if an old `ADMIN_API_TOKEN` secret still exists in the dashboard, delete it.
 6. For public inquiry intake, implement Cloudflare Turnstile configuration with a site key (public variable TURNSTILE_SITE_KEY) and secret (secret TURNSTILE_SECRET). Set SITE_STATUS="production" only when these are configured.
 7. Publish an accurate privacy notice; confirm business identity, contact channels, consent handling, staff notification workflow, data retention, and customer support.
 8. Only after gates 1–7, change INQUIRIES_ENABLED="true" in wrangler.toml and deploy.

@@ -16,4 +16,4 @@ SITE_NAME = "Taytay Textile Co."
 # New client deployments can define CLIENT_CONFIG_JSON from clients/example-apparel.json.
 # Keep each deployment's Worker, domain, database and secrets independent.
 # Never use this production Worker to preview another client.
-# Put DATABASE_URL, ADMIN_API_TOKEN, IP_HASH_PEPPER in Cloudflare secrets, never in Git.
+# Put DATABASE_URL and IP_HASH_PEPPER in Cloudflare secrets, never in Git.
