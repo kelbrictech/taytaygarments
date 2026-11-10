@@ -6,6 +6,7 @@ const pages=[],issues=[];let tests=0;
 try{
  for(const width of [1440,390]){
   const page=await browser.newPage({viewport:{width,height:850},deviceScaleFactor:1});pages.push(page);
+  await page.addInitScript(()=>localStorage.setItem('ttc-privacy-choices-v1',JSON.stringify({version:1,saveBrief:true,at:new Date().toISOString()})));
   const responses=[],failedRequests=[],consoleErrors=[];
   page.on('pageerror',e=>issues.push(width+': '+e.stack));
   page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
@@ -40,6 +41,17 @@ try{
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
   if(overflow)throw Error(width+': horizontal overflow');
   console.log('VIEWPORT '+width+' PASS (cart, viewport, image switching)');
+ }
+ // A first-visit user has no saved consent. The privacy panel must remain behind the showroom modal.
+ for(const width of [1440,390]){
+  const page=await browser.newPage({viewport:{width,height:850},deviceScaleFactor:1});pages.push(page);
+  await page.goto(ORIGIN+'/#/showroom',{waitUntil:'domcontentloaded',timeout:40000});
+  await page.locator('.ttc-cookie-panel').waitFor({state:'visible',timeout:10000});
+  await page.locator('[data-product="scholar-blazer"]').click();
+  await page.locator('#modalVisual [data-ttc-angle="back"]').click({timeout:10000});
+  const firstVisitPhoto=await page.locator('#modalVisual img.product-photograph').getAttribute('src');
+  if(!firstVisitPhoto?.includes('/TTC-SCH-002/navy/back.webp'))throw Error(width+': privacy panel blocked showroom modal controls: '+firstVisitPhoto);
+  console.log('PRIVACY_OVERLAY_MODAL_ACCESS_PASS '+width);
  }
  if(issues.length)throw Error('page errors: '+JSON.stringify(issues));
  console.log('SUCCESS: '+tests+' exact URL and decoded image checks across 2 viewport widths, all colors and views');
