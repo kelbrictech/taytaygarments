@@ -7,7 +7,7 @@ function read(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;cons
 function permitted(){return read()?.saveBrief===true}
 window.TTCPrivacy={read,maySaveBrief:permitted,show:open};
 const style=document.createElement('style');style.id='ttc-privacy-widget-css';style.textContent=`
-.ttc-cookie-panel{position:fixed;inset:auto 12px 12px;z-index:1500;max-width:730px;margin:0 auto;background:#fffefa;color:#1b3b33;border:1px solid #b9cabd;border-top:4px solid #b18458;box-shadow:0 16px 55px #102c2940;padding:clamp(16px,3vw,25px);border-radius:5px;font:14px/1.55 Arial,Helvetica,sans-serif}
+.ttc-cookie-panel{position:fixed;inset:auto 12px 12px;z-index:60;max-width:730px;margin:0 auto;background:#fffefa;color:#1b3b33;border:1px solid #b9cabd;border-top:4px solid #b18458;box-shadow:0 16px 55px #102c2940;padding:clamp(16px,3vw,25px);border-radius:5px;font:14px/1.55 Arial,Helvetica,sans-serif}
 .ttc-cookie-panel h2{font:26px/1.2 Georgia,serif;color:#193d32;margin:2px 0 10px;letter-spacing:-.025em}.ttc-cookie-panel p{font:13px/1.65 Arial,sans-serif;color:#465e51;margin:0 0 14px}
 .ttc-cookie-panel label{display:flex;align-items:flex-start;gap:11px;font:13px/1.55 Arial,sans-serif;margin:12px 0;color:#274d3d}
 .ttc-cookie-panel label input{width:20px;height:20px;min-width:20px;margin:1px 0;accent-color:#173f35}

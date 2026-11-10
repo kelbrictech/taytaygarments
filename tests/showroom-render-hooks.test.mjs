@@ -27,3 +27,8 @@ test('main inline application script is syntactically valid JavaScript',()=>{
   throw error;
  }
 });
+
+test('privacy consent panel stays below the showroom modal overlay',()=>{
+ const privacy=readFileSync(new URL('../public/privacy-controls.js',import.meta.url),'utf8');
+ assert.match(privacy,/\\.ttc-cookie-panel\\{position:fixed;inset:auto 12px 12px;z-index:60;/);
+});
