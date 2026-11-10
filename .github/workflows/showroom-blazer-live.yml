@@ -22,6 +22,8 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --no-audit --no-fund playwright
       - run: npx playwright install chromium
+      - name: Validate showroom integration script syntax
+        run: node --check public/ttc-integration.js
       - run: node tests/showroom-blazer-live.mjs
       - run: node tests/showroom-polo-live.mjs
       - run: node tests/showroom-tee-live.mjs

@@ -6,15 +6,20 @@ const pages=[],issues=[];let tests=0;
 try{
  for(const width of [1440,390]){
   const page=await browser.newPage({viewport:{width,height:850},deviceScaleFactor:1});pages.push(page);
+  const responses=[],failedRequests=[],consoleErrors=[];
   page.on('pageerror',e=>issues.push(width+': '+e.message));
+  page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
+  page.on('response',r=>{if(/ttc-integration|client-config|api\/v1\/products|TTC-SCH-00[123]/.test(r.url()))responses.push({url:r.url(),status:r.status(),contentType:r.headers()['content-type']||''})});
+  page.on('requestfailed',r=>{if(/ttc-integration|client-config|api\/v1\/products|TTC-SCH-00[123]/.test(r.url()))failedRequests.push({url:r.url(),failure:r.failure()?.errorText||'unknown'})});
+  const dump=async reason=>{const state=await page.evaluate(()=>({url:location.href,title:document.title,appText:document.querySelector('#app')?.innerText?.slice(0,500),productCards:document.querySelectorAll('[data-product]').length,blazerCards:document.querySelectorAll('[data-product="scholar-blazer"]').length,scriptTags:[...document.scripts].map(s=>s.src).filter(Boolean),integrationResources:performance.getEntriesByType('resource').filter(x=>x.name.includes('ttc-integration')).map(x=>x.name),catalogSynced:document.documentElement.dataset.ttcCatalogSynced||null,clientConfigError:document.documentElement.dataset.clientConfigError||null,angleButtons:document.querySelectorAll('#modalVisual [data-ttc-angle]').length,modalText:document.querySelector('#modalHost')?.innerText?.slice(0,500)}));console.log('SHOWROOM_DIAGNOSTIC '+JSON.stringify({width,reason,state,responses,failedRequests,issues,consoleErrors}))};
   const res=await page.goto(ORIGIN+'/#/showroom',{waitUntil:'domcontentloaded',timeout:40000});
-  await page.locator('[data-product="scholar-blazer"]').waitFor({timeout:25000});
+  try{await page.locator('[data-product="scholar-blazer"]').waitFor({timeout:25000})}catch(e){await dump('product-card timeout: '+e.message);throw e}
   const card=page.locator('[data-product="scholar-blazer"] img.product-photograph');
-  await page.waitForFunction(()=>document.querySelector('[data-product="scholar-blazer"] img.product-photograph')?.src.includes('/TTC-SCH-002/navy/front.webp'),null,{timeout:45000});
+  try{await page.waitForFunction(()=>document.querySelector('[data-product="scholar-blazer"] img.product-photograph')?.src.includes('/TTC-SCH-002/navy/front.webp'),null,{timeout:45000})}catch(e){await dump('blazer card image timeout: '+e.message);throw e}
   if(!(await card.getAttribute('src')).includes('/TTC-SCH-002/navy/front.webp'))throw Error('Card image not updated');
   console.log('CARD '+width+' '+await card.getAttribute('src'));
   await page.locator('[data-product="scholar-blazer"]').click();
-  await page.locator('#modalVisual [data-ttc-angle="back"]').waitFor({timeout:20000});
+  try{await page.locator('#modalVisual [data-ttc-angle="back"]').waitFor({timeout:20000})}catch(e){await dump('modal angle timeout: '+e.message);throw e}
   for(const color of colors){
    await page.locator('[data-color="'+color+'"]').click();
    await page.locator('#modalVisual [data-ttc-angle="front"]').waitFor({timeout:15000});
