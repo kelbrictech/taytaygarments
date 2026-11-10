@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'public/ttc-integration.js'
+      - 'public/privacy-controls.js'
       - '.github/workflows/showroom-blazer-live.yml'
       - 'tests/showroom-blazer-live.mjs'
       - 'tests/showroom-polo-live.mjs'

@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'public/index.html'
+      - 'public/privacy-controls.js'
       - 'public/ttc-integration.js'
       - 'tests/mobile-showroom-live.mjs'
       - '.github/workflows/mobile-showroom-live.yml'

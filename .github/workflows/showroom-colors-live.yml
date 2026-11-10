@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'public/index.html'
+      - 'public/privacy-controls.js'
       - 'public/ttc-integration.js'
       - 'tests/showroom-color-consistency-live.mjs'
       - '.github/workflows/showroom-colors-live.yml'
