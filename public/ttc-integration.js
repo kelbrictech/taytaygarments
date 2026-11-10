@@ -62,6 +62,7 @@ const nav=document.createElement('div');nav.className='ttc-angle-set';nav.setAtt
 available.forEach((angle,i)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=angle[0].toUpperCase()+angle.slice(1);btn.dataset.ttcAngle=angle;btn.setAttribute('aria-pressed',String(i===0));nav.append(btn)});
 visual.append(nav);
 }
+document.addEventListener('ttc:modal-rendered',updateAngles);
 function attach(){const panel=document.querySelector('.form-panel');if(!panel||panel.querySelector('#submitTTC'))return;
 const block=document.createElement('div');block.className='ttc-submit';
 block.innerHTML='<h3>Submit your project inquiry</h3><p>A reference number confirms database receipt; it does not confirm pricing, capacity, or an order. Design files are not uploaded at this stage.</p><label class="ttc-hp">Leave blank<input id="ttc-site" tabindex="-1" autocomplete="off"></label><div id="ttcTurnstile" aria-label="Human verification"></div><button type="button" class="btn btn-dark" id="submitTTC">Checking inquiry availability…</button><p id="ttcStatus" role="status" aria-live="polite"></p>';
