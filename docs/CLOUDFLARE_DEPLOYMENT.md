@@ -8,6 +8,10 @@ Cloudflare Workers Builds is **already connected** to the GitHub repository. Git
 
 Commits pushed to the configured production branch (`main`) are automatically built/deployed by Cloudflare Workers Builds. Separate GitHub Actions deployment, `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are unnecessary and are **not** part of this project's deployment path.
 
+## Pre-deployment validation
+
+Cloudflare Workers Builds runs `npm run typecheck && npm test` before `npx wrangler deploy` for both production and preview builds. A failed type check or test must stop deployment. Keep the deploy command and the `main` production branch unchanged. The package scripts are defined in the root `package.json`.
+
 1. In Cloudflare → Workers & Pages → **taytaygarments** → Settings → Builds, ensure Git repository is `kelbrictech/taytaygarments` and production branch is `main`.
 2. In Cloudflare → Workers & Pages → **taytaygarments** → Settings → Variables and Secrets, add:
    - `DATABASE_URL` secret: Neon pooled PostgreSQL URL for the existing `taytay_textile` database.
