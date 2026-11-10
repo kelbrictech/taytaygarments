@@ -11,12 +11,44 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  checks: read
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Wait for Cloudflare production deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const commit = await github.rest.repos.getCommit({owner, repo, ref: context.sha});
+            const needsDeployment = (commit.data.files || []).some(file =>
+              file.filename.startsWith('public/') ||
+              file.filename.startsWith('src/') ||
+              file.filename === 'wrangler.toml'
+            );
+            const deadline = Date.now() + 5 * 60 * 1000;
+            while (Date.now() < deadline) {
+              const {data} = await github.rest.checks.listForRef({owner, repo, ref: context.sha, per_page: 100});
+              const build = data.check_runs.find(check => check.name === 'Workers Builds: taytaygarments');
+              if (build && build.status === 'completed') {
+                if (build.conclusion !== 'success') {
+                  core.setFailed('Cloudflare production build ended with ' + build.conclusion);
+                } else {
+                  core.info('Cloudflare production build completed: ' + (build.external_id || build.id));
+                }
+                return;
+              }
+              if (!build && !needsDeployment) {
+                core.info('No production files changed; testing the current deployed Worker.');
+                return;
+              }
+              await new Promise(resolve => setTimeout(resolve, 10000));
+            }
+            core.setFailed('Timed out waiting for the Cloudflare production deployment check.');
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
