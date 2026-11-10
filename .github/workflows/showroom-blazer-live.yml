@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'public/index.html'
       - 'public/ttc-integration.js'
       - 'public/privacy-controls.js'
       - '.github/workflows/showroom-blazer-live.yml'
