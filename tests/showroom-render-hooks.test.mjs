@@ -13,17 +13,16 @@ test('showroom integration listens for deterministic modal renders',()=>{
 test('showroom integration asset is cache-versioned after recovery',()=>{
  assert.match(html,/ttc-integration\.js\?v=20261110-showroom-recovery/);
 });
-
 test('main inline application script is syntactically valid JavaScript',()=>{
- const scripts=[...html.matchAll(/<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]);
+ const scripts=[...html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]);
  const app=scripts.find(s=>s.includes('const products='));
  assert.ok(app,'main inline app script must be present');
  try{new vm.Script(app,{filename:'public/index.html inline app'})}
  catch(error){
-  const match=String(error.stack||error).match(/public\\/index\\.html inline app:(\\d+)/);
+  const match=String(error.stack||error).match(/public\/index\.html inline app:(\d+)/);
   if(match){
-   const line=Number(match[1]),rows=app.split('\\n');
-   console.error('INLINE_SCRIPT_CONTEXT\\n'+rows.slice(Math.max(0,line-4),line+3).map((row,i)=>(Math.max(1,line-3)+i)+': '+row).join('\\n'));
+   const line=Number(match[1]),rows=app.split('\n');
+   console.error('INLINE_SCRIPT_CONTEXT\n'+rows.slice(Math.max(0,line-4),line+3).map((row,i)=>(Math.max(1,line-3)+i)+': '+row).join('\n'));
   }
   throw error;
  }
