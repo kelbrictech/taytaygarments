@@ -38,8 +38,8 @@ try{
   await page.locator('#modalAdd').click();
   const cart=await page.evaluate(()=>JSON.parse(localStorage.getItem('loomfield-pitch-brief-v1')||'[]'));
   if(!cart.some(x=>x.id==='scholar-blazer'&&x.color==='deepGreen'))throw Error('Saved color missing from cart');
-  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
-  if(overflow)throw Error(width+': horizontal overflow');
+  const overflow=await page.evaluate(()=>({html:document.documentElement.scrollWidth,body:document.body.scrollWidth,viewport:innerWidth,offenders:[...document.body.querySelectorAll('*')].map(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return{tag:el.tagName,id:el.id,classes:typeof el.className==='string'?el.className:'',left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),position:s.position,display:s.display,overflowX:s.overflowX}}).filter(x=>x.right>innerWidth+1||x.left< -1).slice(0,20)}));
+  if(overflow.html>overflow.viewport+1)throw Error(width+': horizontal overflow '+JSON.stringify(overflow));
   console.log('VIEWPORT '+width+' PASS (cart, viewport, image switching)');
  }
  // A first-visit user has no saved consent. The privacy panel must remain behind the showroom modal.
