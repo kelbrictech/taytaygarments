@@ -1,4 +1,6 @@
-# MJOTDS Garment Hub — full-stack garment and uniform platform
+# MJOTDS Garment Hub — garment sourcing and specialist coordination platform
+
+**Business positioning:** sourcing and coordination partner rooted in first-hand experience of Taytay's garment industry. MJOTDS helps buyers clarify garment requirements, assess suitable specialist makers and coordinate agreed project milestones. Supplier capabilities and availability are verified per engagement.
 
 **Brand status: provisional.** Clear DTI/SEC/IPOPHL/domain name availability before representing this as a legal company. Concepts must not be represented as existing inventory.
 
@@ -6,7 +8,8 @@
 
 Cloudflare Workers + static Assets frontend, TypeScript API, Neon PostgreSQL (existing project `fancy-water-27345430`, `taytay_textile` in Singapore), committed product concepts and optional Cloudinary URLs.
 
-- `/` — mobile-responsive website and virtual showroom.
+- `/` — mobile-responsive sourcing-led website, garment reference library and project brief builder.
+- Sourcing UX — buyer brief, specialist matching workflow, supplier coordination, sampling/approval, production milestone and delivery handoffs. These are process descriptions; partner availability and service scope are confirmed per project.
 - `/api/health` — backend health and public inquiry availability (no secrets).
 - `/api/v1/products` — live published catalog with product colors and media.
 - `POST /api/v1/inquiries` — consent-based inquiry storage; disabled until launch controls are enabled.
