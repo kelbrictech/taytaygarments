@@ -6,7 +6,7 @@ export type ClientConfig={
  features:Record<Feature,boolean>;
 };
 const featureNames:Feature[]=['orders','inventory','quality','careers'];
-const DEFAULT:ClientConfig={id:'mjotds-garment-hub',brand:{displayName:'MJOTDS Garment Hub',tagline:'GARMENTS · UNIFORMS · APPAREL',location:'Taytay, Rizal · Philippines',primaryColor:'#2454e8',accentColor:'#111214'},features:{orders:true,inventory:true,quality:true,careers:true}};
+const DEFAULT:ClientConfig={id:'mjotds-garment-hub',brand:{displayName:'MJOTDS Garment Hub',tagline:'GARMENT SOURCING · SPECIALIST COORDINATION',location:'Taytay, Rizal · Philippines',primaryColor:'#2454e8',accentColor:'#111214'},features:{orders:true,inventory:true,quality:true,careers:true}};
 const obj=(x:unknown):Record<string,unknown>=>{if(!x||typeof x!=='object'||Array.isArray(x))throw Error('Config must be an object');return x as Record<string,unknown>};
 const only=(x:Record<string,unknown>,allowed:string[])=>{if(Object.keys(x).some(k=>!allowed.includes(k)))throw Error('Unknown client config field')};
 export function loadClientConfig(env:{CLIENT_CONFIG_JSON?:string}):ClientConfig{
