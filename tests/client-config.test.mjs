@@ -8,10 +8,10 @@ const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES20
 const mod={exports:{}};
 vm.runInNewContext(js,{module:mod,exports:mod.exports});
 const {loadClientConfig,featureForApiPath}=mod.exports;
-test('Taytay stays the unchanged deployment default',()=>{
+test('MJOTDS Garment Hub is the default deployment identity',()=>{
  const c=loadClientConfig({});
- assert.equal(c.id,'taytaygarments');
- assert.equal(c.brand.displayName,'Taytay Textile Co.');
+ assert.equal(c.id,'mjotds-garment-hub');
+ assert.equal(c.brand.displayName,'MJOTDS Garment Hub');
  assert.equal(c.features.orders,true);
 });
 test('example client uses only an isolated deployment configuration',()=>{
@@ -19,7 +19,7 @@ test('example client uses only an isolated deployment configuration',()=>{
  assert.equal(c.brand.displayName,'Example Apparel Studio');
  assert.equal(c.features.careers,false);
  assert.equal(c.features.orders,true);
- assert.equal(loadClientConfig({}).brand.primaryColor,'#153c36');
+ assert.equal(loadClientConfig({}).brand.primaryColor,'#2454e8');
 });
 test('reject unknown keys, invalid colors, code-like text, nonboolean module flags',()=>{
  for(const value of ['{"id":"X"}','{"id":"demo","features":{"orders":"false"}}','{"id":"demo","brand":{"primaryColor":"red"}}','{"id":"demo","adminSecret":"oops"}','{"id":"demo","brand":{"displayName":"<script>"}}']){
