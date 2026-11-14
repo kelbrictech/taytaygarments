@@ -106,8 +106,8 @@ test('public client configuration is available without exposing secrets',async()
  const r=await worker.fetch(req('/api/v1/config'),{ASSETS:env.ASSETS});
  assert.equal(r.status,200);
  const data=await r.json();
- assert.equal(data.id,'taytaygarments');
- assert.equal(data.brand.displayName,'Taytay Textile Co.');
+ assert.equal(data.id,'mjotds-garment-hub');
+ assert.equal(data.brand.displayName,'MJOTDS Garment Hub');
  assert.equal(JSON.stringify(data).includes('DATABASE_URL'),false);
 });
 test('disabled order module is rejected on server before customer access',async()=>{
