@@ -13,7 +13,7 @@ const track=read('public/track.html');
 const portalAPI=read('src/portal.ts');
 
 test('Customer entry is visible beside showroom on public navigation',()=>{
- assert.match(index,/<a href="#\/showroom" data-link="showroom">Virtual Showroom<\/a><a href="\/customer"/);
+ assert.match(index,/<a href="#\/showroom" data-link="showroom">Garment References<\/a><a href="\/customer"/);
  assert.match(index,/showroom-customer-entry[^]*?href="\/customer"[^]*?href="\/track\.html"/);
 });
 test('Public footer separates customer account and team operations',()=>{
